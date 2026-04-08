@@ -18,17 +18,17 @@ const Profile = () => {
   const isTeacher = user?.roleId === "teacher";
 
   const studentMenuItems = [
-    { icon: Heart, label: "Favori Öğretmenler", action: () => {} },
-    { icon: Ticket, label: "Kuponlarım", action: () => {} },
-    { icon: Clock, label: "Ders Geçmişi", action: () => {} },
-    { icon: Settings, label: "Ayarlar", action: () => {} },
+    { icon: Heart, label: "Favori Öğretmenler", action: () => navigate("/favorites") },
+    { icon: Ticket, label: "Kuponlarım", action: () => navigate("/coupons") },
+    { icon: Clock, label: "Ders Geçmişi", action: () => navigate("/my-lessons") },
+    { icon: Settings, label: "Ayarlar", action: () => navigate("/settings") },
   ];
 
   const teacherMenuItems = [
     { icon: CheckSquare, label: "Çözdüğüm Sorular", action: () => navigate("/solve-questions") },
     { icon: BookOpen, label: "Derslerim", action: () => navigate("/my-lessons") },
-    { icon: Star, label: "Değerlendirmelerim", action: () => {} },
-    { icon: Settings, label: "Ayarlar", action: () => {} },
+    { icon: Star, label: "Değerlendirmelerim", action: () => navigate("/reviews") },
+    { icon: Settings, label: "Ayarlar", action: () => navigate("/settings") },
   ];
 
   const menuItems = isTeacher ? teacherMenuItems : studentMenuItems;

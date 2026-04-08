@@ -21,6 +21,10 @@ import MyLessons from "./pages/MyLessons";
 import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
 import SolveQuestions from "./pages/SolveQuestions";
+import FavoriteTeachers from "./pages/FavoriteTeachers";
+import Coupons from "./pages/Coupons";
+import Settings from "./pages/Settings";
+import Reviews from "./pages/Reviews";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +53,10 @@ const App = () => (
             <Route path="/my-lessons" element={<ProtectedRoute><MyLessons /></ProtectedRoute>} />
             <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/favorites" element={<ProtectedRoute><FavoriteTeachers /></ProtectedRoute>} />
+            <Route path="/coupons" element={<ProtectedRoute><Coupons /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
