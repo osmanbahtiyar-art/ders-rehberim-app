@@ -29,7 +29,7 @@ export function friendlyError(err: unknown): string {
   const msg = err instanceof Error ? err.message : String(err);
   if (msg.includes('DuplicateUniqueIndexError') && msg.includes('email')) return 'Bu e-posta adresi zaten kayıtlı.';
   if (msg.includes('DuplicateUniqueIndexError')) return 'Bu bilgiler zaten kullanımda.';
-  if (msg.includes('invalid_credentials') || msg.includes('InvalidCredentials')) return 'E-posta veya şifre hatalı.';
+  if (msg.includes('invalid_credentials') || msg.includes('InvalidCredentials') || msg.includes('WrongPassword') || msg.includes('PasswordDoesntMatch')) return 'E-posta veya şifre hatalı.';
   if (msg.includes('EmailVerificationNeeded')) return 'E-posta doğrulaması gerekiyor.';
   if (msg.includes('MobileVerificationNeeded')) return 'Telefon doğrulaması gerekiyor.';
   if (msg.includes('NetworkError') || msg.includes('bağlanılamadı')) return 'Sunucuya bağlanılamadı. Lütfen tekrar deneyin.';

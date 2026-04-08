@@ -59,7 +59,8 @@ const Login = () => {
           navigate("/verify-mobile", { state: { email } });
           return;
         }
-        toast.error(err.errCode === "invalid_credentials" ? "E-posta veya şifre hatalı" : err.message);
+        const badCreds = ["invalid_credentials", "InvalidCredentials", "WrongPassword"];
+        toast.error(badCreds.includes(err.errCode) ? "E-posta veya şifre hatalı" : friendlyError(err));
       } else {
         toast.error(friendlyError(err));
       }

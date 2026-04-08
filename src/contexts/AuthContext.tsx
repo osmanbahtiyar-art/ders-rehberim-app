@@ -66,10 +66,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string): Promise<LoginResponse> => {
     const response = await authApi.login(email, password);
-    // 2FA gerekmiyorsa direkt kullanıcıyı set et
-    if (!response.sessionNeedsEmail2FA && !response.sessionNeedsMobile2FA) {
-      const userData = await authApi.currentUser();
-      setUser(userData);
+    // 2FA / verification gerekmiyorsa login yanıtındaki kullanıcı bilgisini direkt kullan
+    if (
+      !response.sessionNeedsEmail2FA &&
+      !response.sessionNeedsMobile2FA &&
+      !response.emailVerificationNeeded &&
+      !response.mobileVerificationNeeded
+    ) {
+      setUser({
+        userId: response.userId,
+        email: response.email,
+        fullname: response.fullname,
+        roleId: response.roleId,
+        avatar: response.avatar,
+        sessionId: response.sessionId,
+      });
     }
     return response;
   };
