@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { ApiError } from "@/lib/api";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 import { GraduationCap, BookOpen } from "lucide-react";
@@ -24,12 +25,44 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await login(email, password);
+      const res = await login(email, password);
+
+      // Email doğrulama gerekiyor
+      if (res.emailVerificationNeeded) {
+        navigate("/verify-email", { state: { email } });
+        return;
+      }
+      // Mobile doğrulama gerekiyor
+      if (res.mobileVerificationNeeded) {
+        navigate("/verify-mobile", { state: { email } });
+        return;
+      }
+      // 2FA gerekiyor
+      if (res.sessionNeedsEmail2FA) {
+        navigate("/2fa", { state: { type: "email", userId: res.userId, sessionId: res.sessionId } });
+        return;
+      }
+      if (res.sessionNeedsMobile2FA) {
+        navigate("/2fa", { state: { type: "mobile", userId: res.userId, sessionId: res.sessionId } });
+        return;
+      }
+
       toast.success("Giriş başarılı!");
       navigate("/home");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Giriş başarısız";
-      toast.error(msg === "invalid_credentials" ? "E-posta veya şifre hatalı" : msg);
+      if (err instanceof ApiError) {
+        if (err.errCode === "EmailVerificationNeeded") {
+          navigate("/verify-email", { state: { email } });
+          return;
+        }
+        if (err.errCode === "MobileVerificationNeeded") {
+          navigate("/verify-mobile", { state: { email } });
+          return;
+        }
+        toast.error(err.errCode === "invalid_credentials" ? "E-posta veya şifre hatalı" : err.message);
+      } else {
+        toast.error("Giriş başarısız");
+      }
     } finally {
       setLoading(false);
     }
@@ -50,7 +83,7 @@ const Login = () => {
           <p className="mt-1 text-sm text-muted-foreground">Hesabınıza giriş yapın</p>
         </div>
 
-        {/* Demo Accounts */}
+        {/* Demo Hesapları */}
         <div className="mb-6 rounded-xl border border-dashed border-border bg-muted/40 p-4">
           <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Demo Hesapları
@@ -93,7 +126,16 @@ const Login = () => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Şifre</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Şifre</Label>
+              <button
+                type="button"
+                onClick={() => navigate("/forgot-password")}
+                className="text-xs text-primary hover:underline"
+              >
+                Şifremi Unuttum
+              </button>
+            </div>
             <Input
               id="password"
               type="password"

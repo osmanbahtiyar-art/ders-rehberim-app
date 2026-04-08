@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { authApi, clearToken, getToken, OdrSession } from "@/lib/api";
+import { authApi, clearToken, getToken, OdrSession, LoginResponse } from "@/lib/api";
 
 const DEMO_USERS: Record<string, OdrSession> = {
   student: {
@@ -23,16 +23,21 @@ const DEMO_KEY = "odr-demo-role";
 interface AuthContextType {
   user: OdrSession | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  /** Gerçek login — 2FA / verification sonucu döner, yönlendirme çağırana ait */
+  login: (email: string, password: string) => Promise<LoginResponse>;
+  /** Demo giriş — API çağrısı olmadan anında giriş */
   demoLogin: (role: "student" | "teacher") => void;
+  /** 2FA tamamlandıktan sonra kullanıcıyı context'e yükler */
+  refreshUser: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
-  login: async () => {},
+  login: async () => ({} as LoginResponse),
   demoLogin: () => {},
+  refreshUser: async () => {},
   signOut: async () => {},
 });
 
@@ -43,7 +48,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Demo oturumu kontrolü
     const demoRole = localStorage.getItem(DEMO_KEY) as "student" | "teacher" | null;
     if (demoRole && DEMO_USERS[demoRole]) {
       setUser(DEMO_USERS[demoRole]);
@@ -60,15 +64,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .finally(() => setLoading(false));
   }, []);
 
-  const login = async (email: string, password: string) => {
-    await authApi.login(email, password);
-    const userData = await authApi.currentUser();
-    setUser(userData);
+  const login = async (email: string, password: string): Promise<LoginResponse> => {
+    const response = await authApi.login(email, password);
+    // 2FA gerekmiyorsa direkt kullanıcıyı set et
+    if (!response.sessionNeedsEmail2FA && !response.sessionNeedsMobile2FA) {
+      const userData = await authApi.currentUser();
+      setUser(userData);
+    }
+    return response;
   };
 
   const demoLogin = (role: "student" | "teacher") => {
     localStorage.setItem(DEMO_KEY, role);
     setUser(DEMO_USERS[role]);
+  };
+
+  const refreshUser = async () => {
+    const userData = await authApi.currentUser();
+    setUser(userData);
   };
 
   const signOut = async () => {
@@ -79,7 +92,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, demoLogin, signOut }}>
+    <AuthContext.Provider value={{ user, loading, login, demoLogin, refreshUser, signOut }}>
       {children}
     </AuthContext.Provider>
   );

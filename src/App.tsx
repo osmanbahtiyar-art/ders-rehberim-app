@@ -8,6 +8,11 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import VerifyEmail from "./pages/VerifyEmail";
+import VerifyMobile from "./pages/VerifyMobile";
+import TwoFactorAuth from "./pages/TwoFactorAuth";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import HomePage from "./pages/HomePage";
 import SearchPage from "./pages/SearchPage";
 import TeacherProfile from "./pages/TeacherProfile";
@@ -30,6 +35,11 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/verify-mobile" element={<VerifyMobile />} />
+            <Route path="/2fa" element={<TwoFactorAuth />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
             <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
             <Route path="/teacher/:id" element={<ProtectedRoute><TeacherProfile /></ProtectedRoute>} />

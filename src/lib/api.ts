@@ -14,6 +14,16 @@ export function clearToken(): void {
   localStorage.removeItem(TOKEN_KEY);
 }
 
+export class ApiError extends Error {
+  errCode: string;
+  httpStatus: number;
+  constructor(message: string, errCode: string, httpStatus: number) {
+    super(message);
+    this.errCode = errCode;
+    this.httpStatus = httpStatus;
+  }
+}
+
 async function req<T>(service: string, path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
   const headers: Record<string, string> = {
@@ -28,14 +38,14 @@ async function req<T>(service: string, path: string, options: RequestInit = {}):
   if (newToken) setToken(newToken);
 
   const data = await res.json();
-  if (!res.ok) throw new Error(data.message || 'API hatası');
+  if (!res.ok) throw new ApiError(data.message || 'API hatası', data.errCode || '', res.status);
   return data;
 }
 
 // ---- Auth ----
 
 export const authApi = {
-  login: async (username: string, password: string) => {
+  login: async (username: string, password: string): Promise<LoginResponse> => {
     const res = await fetch(`${BASE}/auth-api/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -44,7 +54,7 @@ export const authApi = {
     const newToken = res.headers.get('odr-access-token');
     if (newToken) setToken(newToken);
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Giriş başarısız');
+    if (!res.ok) throw new ApiError(data.message || 'Giriş başarısız', data.errCode || '', res.status);
     return data;
   },
 
@@ -63,12 +73,76 @@ export const authApi = {
     return req<OdrSession>('auth-api', '/currentuser');
   },
 
-  register: async (params: { email: string; password: string; fullname: string }) => {
-    return req<OdrSession>('auth-api', '/v1/registeruser', {
+  register: async (params: { email: string; password: string; fullname: string }): Promise<RegisterResponse> => {
+    return req<RegisterResponse>('auth-api', '/v1/registeruser', {
       method: 'POST',
       body: JSON.stringify(params),
     });
   },
+};
+
+// ---- Verification ----
+
+export const verificationApi = {
+  // Email verification
+  emailStart: (email: string) =>
+    req<VerificationStartResponse>('auth-api', '/verification-services/email-verification/start', {
+      method: 'POST', body: JSON.stringify({ email }),
+    }),
+  emailComplete: (email: string, secretCode: string) =>
+    req<{ status: string; isVerified: boolean; mobileVerificationNeeded?: boolean }>('auth-api', '/verification-services/email-verification/complete', {
+      method: 'POST', body: JSON.stringify({ email, secretCode }),
+    }),
+
+  // Mobile verification
+  mobileStart: (email: string) =>
+    req<VerificationStartResponse>('auth-api', '/verification-services/mobile-verification/start', {
+      method: 'POST', body: JSON.stringify({ email }),
+    }),
+  mobileComplete: (email: string, secretCode: string) =>
+    req<{ status: string; isVerified: boolean }>('auth-api', '/verification-services/mobile-verification/complete', {
+      method: 'POST', body: JSON.stringify({ email, secretCode }),
+    }),
+
+  // Password reset by email
+  passwordResetEmailStart: (email: string) =>
+    req<VerificationStartResponse>('auth-api', '/verification-services/password-reset-by-email/start', {
+      method: 'POST', body: JSON.stringify({ email }),
+    }),
+  passwordResetEmailComplete: (email: string, secretCode: string, password: string) =>
+    req<{ status: string; isVerified: boolean }>('auth-api', '/verification-services/password-reset-by-email/complete', {
+      method: 'POST', body: JSON.stringify({ email, secretCode, password }),
+    }),
+
+  // Password reset by mobile
+  passwordResetMobileStart: (email: string) =>
+    req<VerificationStartResponse & { mobile?: string }>('auth-api', '/verification-services/password-reset-by-mobile/start', {
+      method: 'POST', body: JSON.stringify({ email }),
+    }),
+  passwordResetMobileComplete: (email: string, secretCode: string, password: string) =>
+    req<{ status: string; isVerified: boolean }>('auth-api', '/verification-services/password-reset-by-mobile/complete', {
+      method: 'POST', body: JSON.stringify({ email, secretCode, password }),
+    }),
+
+  // 2FA Email
+  email2FAStart: (userId: string, sessionId: string) =>
+    req<VerificationStartResponse>('auth-api', '/verification-services/email-2factor-verification/start', {
+      method: 'POST', body: JSON.stringify({ userId, sessionId }),
+    }),
+  email2FAComplete: (userId: string, sessionId: string, secretCode: string) =>
+    req<LoginResponse>('auth-api', '/verification-services/email-2factor-verification/complete', {
+      method: 'POST', body: JSON.stringify({ userId, sessionId, secretCode }),
+    }),
+
+  // 2FA Mobile
+  mobile2FAStart: (userId: string, sessionId: string) =>
+    req<VerificationStartResponse>('auth-api', '/verification-services/mobile-2factor-verification/start', {
+      method: 'POST', body: JSON.stringify({ userId, sessionId }),
+    }),
+  mobile2FAComplete: (userId: string, sessionId: string, secretCode: string) =>
+    req<LoginResponse>('auth-api', '/verification-services/mobile-2factor-verification/complete', {
+      method: 'POST', body: JSON.stringify({ userId, sessionId, secretCode }),
+    }),
 };
 
 // ---- Teacher Profile ----
@@ -134,6 +208,31 @@ export interface OdrSession {
   fullname: string;
   roleId: string;
   avatar?: string;
+  sessionId?: string;
+}
+
+export interface LoginResponse extends OdrSession {
+  accessToken?: string;
+  sessionNeedsEmail2FA?: boolean;
+  sessionNeedsMobile2FA?: boolean;
+  emailVerificationNeeded?: boolean;
+  mobileVerificationNeeded?: boolean;
+}
+
+export interface RegisterResponse extends OdrSession {
+  emailVerificationNeeded?: boolean;
+  mobileVerificationNeeded?: boolean;
+}
+
+export interface VerificationStartResponse {
+  status: string;
+  codeIndex: number;
+  expireTime: number;
+  verificationType: string;
+  // test mode only
+  secretCode?: string;
+  userId?: string;
+  mobile?: string;
 }
 
 export interface OdrListResponse<T> {

@@ -42,7 +42,19 @@ const Register = () => {
 
     setLoading(true);
     try {
-      await authApi.register({ email, password, fullname: fullName });
+      const res = await authApi.register({ email, password, fullname: fullName });
+
+      if (res.emailVerificationNeeded) {
+        toast.info("E-posta adresinizi doğrulamanız gerekiyor.");
+        navigate("/verify-email", { state: { email } });
+        return;
+      }
+      if (res.mobileVerificationNeeded) {
+        toast.info("Telefon numaranızı doğrulamanız gerekiyor.");
+        navigate("/verify-mobile", { state: { email } });
+        return;
+      }
+
       await login(email, password);
       toast.success("Kayıt başarılı!");
       navigate("/home");
