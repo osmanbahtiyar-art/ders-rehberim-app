@@ -1,4 +1,4 @@
-const BASE = 'https://odr.prw.mindbricks.com';
+const BASE = import.meta.env.VITE_API_BASE ?? 'https://odr.prw.mindbricks.com';
 
 const TOKEN_KEY = 'odr-access-token';
 
