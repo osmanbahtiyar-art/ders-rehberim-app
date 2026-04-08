@@ -396,6 +396,71 @@ export interface AnswerItem {
   teacherId_data?: { fullname: string; avatar: string };
 }
 
+// ---- Admin ----
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  fullname: string;
+  avatar: string;
+  roleId: string;
+  emailVerified: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminUsersResponse {
+  status: string;
+  rowCount: number;
+  users: AdminUser[];
+  paging: { pageNumber: number; pageRowCount: number; totalRowCount: number; pageCount: number };
+}
+
+export const adminApi = {
+  listUsers: async (params?: { pageNumber?: number; pageRowCount?: number; search?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.pageNumber) q.set('pageNumber', String(params.pageNumber));
+    if (params?.pageRowCount) q.set('pageRowCount', String(params.pageRowCount));
+    if (params?.search) q.set('search', params.search);
+    return req<AdminUsersResponse>('auth-api', `/v1/users?${q}`);
+  },
+
+  setUserRole: async (userId: string, roleId: string) => {
+    return req<{ status: string }>('auth-api', `/v1/userrole/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ roleId }),
+    });
+  },
+
+  setUserActive: async (userId: string, isActive: boolean) => {
+    return req<{ status: string }>('auth-api', `/v1/useractive/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ isActive }),
+    });
+  },
+
+  listAllBookings: async (params?: { pageRowCount?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.pageRowCount) q.set('pageRowCount', String(params.pageRowCount));
+    return req<OdrListResponse<BookingItem>>('lessonbooking-api', `/v1/lessonbookings?${q}`);
+  },
+
+  listAllQuestions: async (params?: { pageRowCount?: number; status?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.pageRowCount) q.set('pageRowCount', String(params.pageRowCount));
+    if (params?.status) q.set('status', params.status);
+    return req<OdrListResponse<QuestionItem>>('qaplatform-api', `/v1/questions?${q}`);
+  },
+
+  updateQuestionStatus: async (questionId: string, status: string) => {
+    return req<{ status: string }>('qaplatform-api', `/v1/question/${questionId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+  },
+};
+
 // ---- Helpers ----
 
 export function getFirstRate(hourlyRates?: Record<string, number>): number {

@@ -1,4 +1,4 @@
-import { Settings, ChevronRight, Heart, Ticket, Clock, LogOut, BookOpen, CheckSquare, Star, GraduationCap } from "lucide-react";
+import { Settings, ChevronRight, Heart, Ticket, Clock, LogOut, BookOpen, CheckSquare, Star, GraduationCap, Shield } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,6 +16,7 @@ const Profile = () => {
   const displayName = user?.fullname || user?.email || "Kullanıcı";
   const initial = displayName.charAt(0).toUpperCase();
   const isTeacher = user?.roleId === "teacher";
+  const isAdmin = user?.roleId === "superAdmin" || user?.roleId === "admin";
 
   const studentMenuItems = [
     { icon: Heart, label: "Favori Öğretmenler", action: () => navigate("/favorites") },
@@ -130,9 +131,21 @@ const Profile = () => {
           ))}
         </div>
 
+        {/* Admin panel girişi — sadece admin/superAdmin görebilir */}
+        {isAdmin && (
+          <button
+            onClick={() => navigate("/admin")}
+            className="mt-4 flex w-full items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3.5 text-left transition-colors hover:bg-primary/10"
+          >
+            <Shield className="h-5 w-5 text-primary" />
+            <span className="flex-1 font-medium text-primary">Admin Paneli</span>
+            <ChevronRight className="h-4 w-4 text-primary" />
+          </button>
+        )}
+
         <button
           onClick={handleLogout}
-          className="mt-6 flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-left text-destructive transition-colors hover:bg-destructive/5"
+          className="mt-4 flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-left text-destructive transition-colors hover:bg-destructive/5"
         >
           <LogOut className="h-5 w-5" />
           <span className="font-medium">Çıkış Yap</span>
