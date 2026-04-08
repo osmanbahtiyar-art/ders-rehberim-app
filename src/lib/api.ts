@@ -24,6 +24,19 @@ export class ApiError extends Error {
   }
 }
 
+async function parseJSON(res: Response): Promise<Record<string, unknown>> {
+  const text = await res.text();
+  if (!text || !text.trim()) return {};
+  try {
+    return JSON.parse(text);
+  } catch {
+    // HTML hata sayfası veya bozuk yanıt
+    console.error('JSON parse hatası, ham yanıt:', text.slice(0, 200));
+    if (!res.ok) throw new ApiError(`Sunucu hatası (${res.status})`, 'ServerError', res.status);
+    return {};
+  }
+}
+
 async function req<T>(service: string, path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
   const headers: Record<string, string> = {
@@ -32,30 +45,40 @@ async function req<T>(service: string, path: string, options: RequestInit = {}):
   };
   if (token) headers['odr-access-token'] = token;
 
-  const res = await fetch(`${BASE}/${service}${path}`, { ...options, headers });
+  let res: Response;
+  try {
+    res = await fetch(`${BASE}/${service}${path}`, { ...options, headers });
+  } catch (networkErr) {
+    throw new ApiError('Sunucuya bağlanılamadı. Lütfen tekrar deneyin.', 'NetworkError', 0);
+  }
 
   const newToken = res.headers.get('odr-access-token');
   if (newToken) setToken(newToken);
 
-  const data = await res.json();
-  if (!res.ok) throw new ApiError(data.message || 'API hatası', data.errCode || '', res.status);
-  return data;
+  const data = await parseJSON(res);
+  if (!res.ok) throw new ApiError((data.message as string) || 'API hatası', (data.errCode as string) || '', res.status);
+  return data as T;
 }
 
 // ---- Auth ----
 
 export const authApi = {
   login: async (username: string, password: string): Promise<LoginResponse> => {
-    const res = await fetch(`${BASE}/auth-api/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    });
+    let res: Response;
+    try {
+      res = await fetch(`${BASE}/auth-api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+    } catch {
+      throw new ApiError('Sunucuya bağlanılamadı. Lütfen tekrar deneyin.', 'NetworkError', 0);
+    }
     const newToken = res.headers.get('odr-access-token');
     if (newToken) setToken(newToken);
-    const data = await res.json();
-    if (!res.ok) throw new ApiError(data.message || 'Giriş başarısız', data.errCode || '', res.status);
-    return data;
+    const data = await parseJSON(res);
+    if (!res.ok) throw new ApiError((data.message as string) || 'Giriş başarısız', (data.errCode as string) || '', res.status);
+    return data as LoginResponse;
   },
 
   logout: async () => {

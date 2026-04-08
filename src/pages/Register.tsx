@@ -60,7 +60,11 @@ const Register = () => {
       navigate("/home");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Kayıt başarısız";
-      toast.error(msg);
+      if (msg === "Sunucuya bağlanılamadı. Lütfen tekrar deneyin." || msg.includes("ServerError")) {
+        toast.error("Sunucu şu anda kapalı. Lütfen birkaç saniye bekleyip tekrar deneyin.");
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setLoading(false);
     }
