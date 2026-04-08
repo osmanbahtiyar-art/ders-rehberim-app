@@ -9,29 +9,16 @@ import logo from "@/assets/logo.png";
 import { GraduationCap, BookOpen } from "lucide-react";
 
 const DEMO_ACCOUNTS = [
-  {
-    label: "Öğrenci",
-    email: "demo.student@ozelders.com",
-    password: "demo1234",
-    icon: GraduationCap,
-    variant: "hero" as const,
-  },
-  {
-    label: "Öğretmen",
-    email: "demo.teacher@ozelders.com",
-    password: "demo1234",
-    icon: BookOpen,
-    variant: "accent" as const,
-  },
+  { label: "Öğrenci", role: "student" as const, icon: GraduationCap, variant: "hero" as const },
+  { label: "Öğretmen", role: "teacher" as const, icon: BookOpen, variant: "accent" as const },
 ];
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, demoLogin } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [demoLoading, setDemoLoading] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,20 +35,10 @@ const Login = () => {
     }
   };
 
-  const handleDemoLogin = async (account: typeof DEMO_ACCOUNTS[number]) => {
-    setDemoLoading(account.label);
-    setEmail(account.email);
-    setPassword(account.password);
-    try {
-      await login(account.email, account.password);
-      toast.success(`${account.label} demo hesabıyla giriş yapıldı!`);
-      navigate("/home");
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Demo giriş başarısız";
-      toast.error(msg);
-    } finally {
-      setDemoLoading(null);
-    }
+  const handleDemoLogin = (account: typeof DEMO_ACCOUNTS[number]) => {
+    demoLogin(account.role);
+    toast.success(`${account.label} demo hesabıyla giriş yapıldı!`);
+    navigate("/home");
   };
 
   return (
@@ -85,11 +62,10 @@ const Login = () => {
                 variant={account.variant}
                 size="sm"
                 className="flex-1 gap-1.5"
-                disabled={!!demoLoading}
                 onClick={() => handleDemoLogin(account)}
               >
                 <account.icon className="h-3.5 w-3.5" />
-                {demoLoading === account.label ? "Giriş..." : account.label}
+                {account.label}
               </Button>
             ))}
           </div>
