@@ -22,6 +22,7 @@ import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
 import SolveQuestions from "./pages/SolveQuestions";
 import AdminPanel from "./pages/admin/AdminPanel";
+import AdminLogin from "./pages/admin/AdminLogin";
 import AdminRoute from "./components/AdminRoute";
 import FavoriteTeachers from "./pages/FavoriteTeachers";
 import Coupons from "./pages/Coupons";
@@ -59,6 +60,7 @@ const App = () => (
             <Route path="/coupons" element={<ProtectedRoute><Coupons /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="/reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
+            <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
