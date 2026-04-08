@@ -2,6 +2,7 @@ import { MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface QuestionCardProps {
+  id?: string | number;
   image: string;
   subject: string;
   grade: string;

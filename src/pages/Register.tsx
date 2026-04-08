@@ -2,17 +2,18 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { subjects, exams, grades } from "@/data/mockData";
 import { GraduationCap, BookOpen } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { authApi } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 
 const Register = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [searchParams] = useSearchParams();
   const initialRole = searchParams.get("role") as "student" | "teacher" | null;
   const [role, setRole] = useState<"student" | "teacher">(initialRole || "student");
@@ -21,15 +22,12 @@ const Register = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // Student fields
   const [grade, setGrade] = useState("");
   const [targetExam, setTargetExam] = useState("");
-  // Teacher fields
   const [subject, setSubject] = useState("");
   const [experience, setExperience] = useState("");
   const [education, setEducation] = useState("");
   const [price, setPrice] = useState("");
-  const [bio, setBio] = useState("");
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,52 +41,17 @@ const Register = () => {
     }
 
     setLoading(true);
-
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: fullName },
-        emailRedirectTo: window.location.origin,
-      },
-    });
-
-    if (error) {
-      toast.error(error.message);
+    try {
+      await authApi.register({ email, password, fullname: fullName });
+      await login(email, password);
+      toast.success("Kayıt başarılı!");
+      navigate("/home");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Kayıt başarısız";
+      toast.error(msg);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const userId = data.user?.id;
-    if (!userId) {
-      toast.error("Kayıt sırasında bir hata oluştu");
-      setLoading(false);
-      return;
-    }
-
-    // Insert role
-    await supabase.from("user_roles").insert({ user_id: userId, role });
-
-    // Insert role-specific profile
-    if (role === "student") {
-      await supabase.from("student_profiles").insert({
-        user_id: userId,
-        grade: grade || null,
-        target_exam: targetExam || null,
-      });
-    } else {
-      await supabase.from("teacher_profiles").insert({
-        user_id: userId,
-        subject: subject || null,
-        experience_years: experience ? parseInt(experience) : null,
-        education: education || null,
-        price_per_lesson: price ? parseInt(price) : null,
-        bio: bio || null,
-      });
-    }
-
-    toast.success("Kayıt başarılı! Giriş yapabilirsiniz.");
-    navigate("/home");
   };
 
   return (
@@ -103,9 +66,7 @@ const Register = () => {
           <button
             onClick={() => setRole("student")}
             className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-colors ${
-              role === "student"
-                ? "bg-card text-primary shadow-card"
-                : "text-muted-foreground"
+              role === "student" ? "bg-card text-primary shadow-card" : "text-muted-foreground"
             }`}
           >
             <GraduationCap className="h-4 w-4" />
@@ -114,9 +75,7 @@ const Register = () => {
           <button
             onClick={() => setRole("teacher")}
             className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-colors ${
-              role === "teacher"
-                ? "bg-card text-accent shadow-card"
-                : "text-muted-foreground"
+              role === "teacher" ? "bg-card text-accent shadow-card" : "text-muted-foreground"
             }`}
           >
             <BookOpen className="h-4 w-4" />
@@ -183,10 +142,6 @@ const Register = () => {
               <div className="space-y-2">
                 <Label>Ders Fiyatı (40 dk) - ₺</Label>
                 <Input type="number" placeholder="300" value={price} onChange={(e) => setPrice(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label>Hakkında</Label>
-                <Textarea placeholder="Kendinizi tanıtın..." rows={3} value={bio} onChange={(e) => setBio(e.target.value)} />
               </div>
             </>
           )}

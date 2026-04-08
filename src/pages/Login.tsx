@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,19 +17,16 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error) {
-      toast.error(error.message === "Invalid login credentials"
-        ? "E-posta veya şifre hatalı"
-        : error.message);
+    try {
+      await login(email, password);
+      toast.success("Giriş başarılı!");
+      navigate("/home");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Giriş başarısız";
+      toast.error(msg === "invalid_credentials" ? "E-posta veya şifre hatalı" : msg);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    toast.success("Giriş başarılı!");
-    navigate("/home");
   };
 
   return (

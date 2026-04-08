@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { ArrowLeft, Search, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import TeacherCard from "@/components/TeacherCard";
 import BottomNav from "@/components/BottomNav";
-import { teachers, subjects, exams } from "@/data/mockData";
+import { subjects, exams } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { teacherApi, normalizeTeacher } from "@/lib/api";
 
 const SearchPage = () => {
   const navigate = useNavigate();
@@ -13,10 +14,13 @@ const SearchPage = () => {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [selectedExam, setSelectedExam] = useState<string | null>(null);
 
-  const filteredTeachers = teachers.filter((t) => {
-    if (selectedSubject && t.subject !== selectedSubject) return false;
-    return true;
+  const { data, isLoading } = useQuery({
+    queryKey: ["teachers", selectedSubject],
+    queryFn: () => teacherApi.list({ branch: selectedSubject ?? undefined, pageRowCount: 50 }),
   });
+
+  const rawTeachers = (data as Record<string, unknown>)?.teacherProfile as unknown[] | undefined;
+  const teachers = (rawTeachers ?? []).map((t) => normalizeTeacher(t as Parameters<typeof normalizeTeacher>[0]));
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -45,9 +49,7 @@ const SearchPage = () => {
                   key={s}
                   onClick={() => setSelectedSubject(selectedSubject === s ? null : s)}
                   className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                    selectedSubject === s
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary text-secondary-foreground"
+                    selectedSubject === s ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"
                   }`}
                 >
                   {s}
@@ -61,9 +63,7 @@ const SearchPage = () => {
                   key={e}
                   onClick={() => setSelectedExam(selectedExam === e ? null : e)}
                   className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                    selectedExam === e
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary text-secondary-foreground"
+                    selectedExam === e ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"
                   }`}
                 >
                   {e}
@@ -75,10 +75,19 @@ const SearchPage = () => {
       )}
 
       <div className="mx-auto max-w-lg space-y-3 px-4 py-4">
-        <p className="text-sm text-muted-foreground">{filteredTeachers.length} öğretmen bulundu</p>
-        {filteredTeachers.map((t) => (
-          <TeacherCard key={t.id} {...t} />
-        ))}
+        {isLoading ? (
+          <p className="text-center text-sm text-muted-foreground py-8">Yükleniyor...</p>
+        ) : (
+          <>
+            <p className="text-sm text-muted-foreground">{teachers.length} öğretmen bulundu</p>
+            {teachers.map((t) => (
+              <TeacherCard key={t.id} {...t} />
+            ))}
+            {teachers.length === 0 && (
+              <p className="text-center text-sm text-muted-foreground py-8">Öğretmen bulunamadı</p>
+            )}
+          </>
+        )}
       </div>
 
       <BottomNav />

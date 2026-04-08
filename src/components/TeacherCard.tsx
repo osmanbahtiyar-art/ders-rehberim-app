@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
 interface TeacherCardProps {
-  id: number;
+  id: string | number;
   name: string;
   subject: string;
   rating: number;

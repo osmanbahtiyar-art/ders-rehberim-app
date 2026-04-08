@@ -1,52 +1,50 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { User, Session } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { authApi, clearToken, getToken, OdrSession } from "@/lib/api";
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: OdrSession | null;
   loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  session: null,
   loading: true,
+  login: async () => {},
   signOut: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<OdrSession | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    if (!getToken()) {
       setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+      return;
+    }
+    authApi.currentUser()
+      .then(setUser)
+      .catch(() => clearToken())
+      .finally(() => setLoading(false));
   }, []);
 
+  const login = async (email: string, password: string) => {
+    await authApi.login(email, password);
+    const userData = await authApi.currentUser();
+    setUser(userData);
+  };
+
   const signOut = async () => {
-    await supabase.auth.signOut();
+    await authApi.logout();
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signOut }}>
+    <AuthContext.Provider value={{ user, loading, login, signOut }}>
       {children}
     </AuthContext.Provider>
   );
