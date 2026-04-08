@@ -11,13 +11,6 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false,
     },
-    proxy: {
-      '/odr-api': {
-        target: 'https://odr.prw.mindbricks.com',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/odr-api/, ''),
-      },
-    },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {

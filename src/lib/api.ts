@@ -1,4 +1,4 @@
-const BASE = '/odr-api';
+const BASE = 'https://odr.prw.mindbricks.com';
 
 const TOKEN_KEY = 'odr-access-token';
 
