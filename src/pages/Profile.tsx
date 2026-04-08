@@ -1,9 +1,45 @@
 import { Settings, ChevronRight, Heart, Ticket, Clock, LogOut } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const [profile, setProfile] = useState<{ full_name: string } | null>(null);
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    
+    const fetchProfile = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("user_id", user.id)
+        .single();
+      setProfile(data);
+
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .single();
+      setRole(roleData?.role ?? null);
+    };
+
+    fetchProfile();
+  }, [user]);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
+  };
+
+  const displayName = profile?.full_name || user?.email || "Kullanıcı";
+  const initial = displayName.charAt(0).toUpperCase();
 
   const menuItems = [
     { icon: Heart, label: "Favori Öğretmenler", count: 3 },
@@ -17,22 +53,23 @@ const Profile = () => {
       <div className="bg-gradient-primary px-6 pb-8 pt-10">
         <div className="mx-auto flex max-w-lg items-center gap-4">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-foreground/20 text-2xl font-bold text-primary-foreground">
-            A
+            {initial}
           </div>
           <div>
-            <h2 className="text-lg font-bold text-primary-foreground">Ahmet Yılmaz</h2>
-            <p className="text-sm text-primary-foreground/80">12. Sınıf · YKS</p>
+            <h2 className="text-lg font-bold text-primary-foreground">{displayName}</h2>
+            <p className="text-sm text-primary-foreground/80">
+              {role === "teacher" ? "Öğretmen" : role === "student" ? "Öğrenci" : ""}
+            </p>
           </div>
         </div>
       </div>
 
       <div className="mx-auto max-w-lg px-6">
-        {/* Stats */}
         <div className="-mt-4 grid grid-cols-3 gap-3">
           {[
-            { label: "Ders", value: "12" },
-            { label: "Soru", value: "8" },
-            { label: "Puan", value: "4.9" },
+            { label: "Ders", value: "0" },
+            { label: "Soru", value: "0" },
+            { label: "Puan", value: "-" },
           ].map((s) => (
             <div key={s.label} className="rounded-xl border border-border bg-card p-3 text-center shadow-card">
               <p className="text-xl font-bold text-primary">{s.value}</p>
@@ -41,7 +78,6 @@ const Profile = () => {
           ))}
         </div>
 
-        {/* Menu */}
         <div className="mt-6 space-y-1">
           {menuItems.map((item) => (
             <button
@@ -59,7 +95,7 @@ const Profile = () => {
         </div>
 
         <button
-          onClick={() => navigate("/")}
+          onClick={handleLogout}
           className="mt-6 flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-left text-destructive transition-colors hover:bg-destructive/5"
         >
           <LogOut className="h-5 w-5" />
