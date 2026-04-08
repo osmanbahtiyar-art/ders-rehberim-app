@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { ApiError } from "@/lib/api";
+import { ApiError, friendlyError } from "@/lib/api";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 import { GraduationCap, BookOpen } from "lucide-react";
@@ -61,7 +61,7 @@ const Login = () => {
         }
         toast.error(err.errCode === "invalid_credentials" ? "E-posta veya şifre hatalı" : err.message);
       } else {
-        toast.error("Giriş başarısız");
+        toast.error(friendlyError(err));
       }
     } finally {
       setLoading(false);

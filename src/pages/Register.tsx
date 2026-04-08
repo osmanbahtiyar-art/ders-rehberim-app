@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { subjects, exams, grades } from "@/data/mockData";
 import { GraduationCap, BookOpen } from "lucide-react";
-import { authApi } from "@/lib/api";
+import { authApi, friendlyError } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
@@ -59,12 +59,7 @@ const Register = () => {
       toast.success("Kayıt başarılı!");
       navigate("/home");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Kayıt başarısız";
-      if (msg === "Sunucuya bağlanılamadı. Lütfen tekrar deneyin." || msg.includes("ServerError")) {
-        toast.error("Sunucu şu anda kapalı. Lütfen birkaç saniye bekleyip tekrar deneyin.");
-      } else {
-        toast.error(msg);
-      }
+      toast.error(friendlyError(err));
     } finally {
       setLoading(false);
     }

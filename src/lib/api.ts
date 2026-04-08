@@ -24,6 +24,20 @@ export class ApiError extends Error {
   }
 }
 
+/** API hata mesajlarını Türkçe'ye çevirir */
+export function friendlyError(err: unknown): string {
+  const msg = err instanceof Error ? err.message : String(err);
+  if (msg.includes('DuplicateUniqueIndexError') && msg.includes('email')) return 'Bu e-posta adresi zaten kayıtlı.';
+  if (msg.includes('DuplicateUniqueIndexError')) return 'Bu bilgiler zaten kullanımda.';
+  if (msg.includes('invalid_credentials') || msg.includes('InvalidCredentials')) return 'E-posta veya şifre hatalı.';
+  if (msg.includes('EmailVerificationNeeded')) return 'E-posta doğrulaması gerekiyor.';
+  if (msg.includes('MobileVerificationNeeded')) return 'Telefon doğrulaması gerekiyor.';
+  if (msg.includes('NetworkError') || msg.includes('bağlanılamadı')) return 'Sunucuya bağlanılamadı. Lütfen tekrar deneyin.';
+  if (msg.includes('ServerError') || msg.includes('Sunucu hatası')) return 'Sunucu hatası oluştu. Lütfen tekrar deneyin.';
+  if (msg.startsWith('errMsg_')) return 'Bir hata oluştu. Lütfen tekrar deneyin.';
+  return msg || 'Beklenmeyen bir hata oluştu.';
+}
+
 async function parseJSON(res: Response): Promise<Record<string, unknown>> {
   const text = await res.text();
   if (!text || !text.trim()) return {};
@@ -256,9 +270,17 @@ export interface LoginResponse extends OdrSession {
   mobileVerificationNeeded?: boolean;
 }
 
-export interface RegisterResponse extends OdrSession {
+export interface RegisterResponse {
+  status: string;
   emailVerificationNeeded?: boolean;
   mobileVerificationNeeded?: boolean;
+  user?: {
+    id: string;
+    email: string;
+    fullname: string;
+    roleId: string;
+    avatar?: string;
+  };
 }
 
 export interface VerificationStartResponse {
