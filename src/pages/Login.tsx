@@ -6,6 +6,24 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
+import { GraduationCap, BookOpen } from "lucide-react";
+
+const DEMO_ACCOUNTS = [
+  {
+    label: "Öğrenci",
+    email: "demo.student@ozelders.com",
+    password: "demo1234",
+    icon: GraduationCap,
+    variant: "hero" as const,
+  },
+  {
+    label: "Öğretmen",
+    email: "demo.teacher@ozelders.com",
+    password: "demo1234",
+    icon: BookOpen,
+    variant: "accent" as const,
+  },
+];
 
 const Login = () => {
   const navigate = useNavigate();
@@ -13,6 +31,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +48,22 @@ const Login = () => {
     }
   };
 
+  const handleDemoLogin = async (account: typeof DEMO_ACCOUNTS[number]) => {
+    setDemoLoading(account.label);
+    setEmail(account.email);
+    setPassword(account.password);
+    try {
+      await login(account.email, account.password);
+      toast.success(`${account.label} demo hesabıyla giriş yapıldı!`);
+      navigate("/home");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Demo giriş başarısız";
+      toast.error(msg);
+    } finally {
+      setDemoLoading(null);
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
       <div className="w-full max-w-sm">
@@ -38,14 +73,59 @@ const Login = () => {
           <p className="mt-1 text-sm text-muted-foreground">Hesabınıza giriş yapın</p>
         </div>
 
+        {/* Demo Accounts */}
+        <div className="mb-6 rounded-xl border border-dashed border-border bg-muted/40 p-4">
+          <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Demo Hesapları
+          </p>
+          <div className="flex gap-2">
+            {DEMO_ACCOUNTS.map((account) => (
+              <Button
+                key={account.label}
+                variant={account.variant}
+                size="sm"
+                className="flex-1 gap-1.5"
+                disabled={!!demoLoading}
+                onClick={() => handleDemoLogin(account)}
+              >
+                <account.icon className="h-3.5 w-3.5" />
+                {demoLoading === account.label ? "Giriş..." : account.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative mb-6">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center">
+            <span className="bg-background px-3 text-xs text-muted-foreground">veya e-posta ile giriş yap</span>
+          </div>
+        </div>
+
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">E-posta</Label>
-            <Input id="email" type="email" placeholder="ornek@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <Input
+              id="email"
+              type="email"
+              placeholder="ornek@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Şifre</Label>
-            <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
           </div>
           <Button type="submit" variant="hero" className="w-full" size="lg" disabled={loading}>
             {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
