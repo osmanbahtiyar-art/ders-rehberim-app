@@ -20,6 +20,7 @@ import AskQuestion from "./pages/AskQuestion";
 import MyLessons from "./pages/MyLessons";
 import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
+import SolveQuestions from "./pages/SolveQuestions";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
             <Route path="/teacher/:id" element={<ProtectedRoute><TeacherProfile /></ProtectedRoute>} />
             <Route path="/ask-question" element={<ProtectedRoute><AskQuestion /></ProtectedRoute>} />
+            <Route path="/solve-questions" element={<ProtectedRoute><SolveQuestions /></ProtectedRoute>} />
             <Route path="/my-lessons" element={<ProtectedRoute><MyLessons /></ProtectedRoute>} />
             <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

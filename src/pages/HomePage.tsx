@@ -1,4 +1,4 @@
-import { Search, Star, ChevronRight, HelpCircle } from "lucide-react";
+import { Search, Star, ChevronRight, HelpCircle, CheckSquare } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import TeacherCard from "@/components/TeacherCard";
 import QuestionCard from "@/components/QuestionCard";
@@ -6,9 +6,12 @@ import BottomNav from "@/components/BottomNav";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { teacherApi, qaApi, normalizeTeacher } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isTeacher = user?.roleId === "teacher";
 
   const { data: teachersData } = useQuery({
     queryKey: ["teachers"],
@@ -34,14 +37,16 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="bg-gradient-primary px-6 pb-8 pt-10">
+      <div className={`px-6 pb-8 pt-10 ${isTeacher ? "bg-gradient-to-br from-amber-500 to-orange-600" : "bg-gradient-primary"}`}>
         <div className="mx-auto max-w-lg">
           <h2 className="text-lg font-semibold text-primary-foreground">Merhaba! 👋</h2>
-          <p className="mt-0.5 text-sm text-primary-foreground/80">Bugün ne öğrenmek istersin?</p>
+          <p className="mt-0.5 text-sm text-primary-foreground/80">
+            {isTeacher ? "Bugün kaç soru çözeceksin?" : "Bugün ne öğrenmek istersin?"}
+          </p>
           <div className="relative mt-4">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Ders veya öğretmen ara..."
+              placeholder={isTeacher ? "Ders ara..." : "Ders veya öğretmen ara..."}
               className="border-0 bg-card pl-10 shadow-card"
               onClick={() => navigate("/search")}
               readOnly
@@ -51,19 +56,35 @@ const HomePage = () => {
       </div>
 
       <div className="mx-auto max-w-lg px-6">
-        <button
-          onClick={() => navigate("/ask-question")}
-          className="mt-6 flex w-full items-center gap-3 rounded-xl bg-accent/10 p-4 text-left transition-colors hover:bg-accent/15"
-        >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-accent">
-            <HelpCircle className="h-5 w-5 text-accent-foreground" />
-          </div>
-          <div className="flex-1">
-            <p className="font-semibold text-foreground">Ücretsiz Soru Çöz</p>
-            <p className="text-xs text-muted-foreground">Sorunu yükle, öğretmenler çözsün!</p>
-          </div>
-          <ChevronRight className="h-5 w-5 text-muted-foreground" />
-        </button>
+        {isTeacher ? (
+          <button
+            onClick={() => navigate("/solve-questions")}
+            className="mt-6 flex w-full items-center gap-3 rounded-xl bg-amber-500/10 p-4 text-left transition-colors hover:bg-amber-500/15 border border-amber-200 dark:border-amber-800"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500">
+              <CheckSquare className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-foreground">Soru Çöz</p>
+              <p className="text-xs text-muted-foreground">Öğrencilerin sorularına çözüm gönder!</p>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </button>
+        ) : (
+          <button
+            onClick={() => navigate("/ask-question")}
+            className="mt-6 flex w-full items-center gap-3 rounded-xl bg-accent/10 p-4 text-left transition-colors hover:bg-accent/15"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-accent">
+              <HelpCircle className="h-5 w-5 text-accent-foreground" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-foreground">Ücretsiz Soru Çöz</p>
+              <p className="text-xs text-muted-foreground">Sorunu yükle, öğretmenler çözsün!</p>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </button>
+        )}
 
         <div className="mt-8">
           <div className="mb-3 flex items-center justify-between">

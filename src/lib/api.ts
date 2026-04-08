@@ -192,8 +192,22 @@ export const qaApi = {
     return req<OdrListResponse<QuestionItem>>('qaplatform-api', `/v1/questions?${q}`);
   },
 
+  listPendingQuestions: async (params?: { pageRowCount?: number; branch?: string }) => {
+    const q = new URLSearchParams({ status: 'approved' });
+    if (params?.pageRowCount) q.set('pageRowCount', String(params.pageRowCount));
+    if (params?.branch) q.set('branch', params.branch);
+    return req<OdrListResponse<QuestionItem>>('qaplatform-api', `/v1/questions?${q}`);
+  },
+
   submitQuestion: async (params: { content: string; branch: string; examType: string; status: string }) => {
     return req<OdrItemResponse<QuestionItem>>('qaplatform-api', '/v1/question', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  },
+
+  submitAnswer: async (params: { questionId: string; content: string; attachments?: string }) => {
+    return req<OdrItemResponse<AnswerItem>>('qaplatform-api', '/v1/answer', {
       method: 'POST',
       body: JSON.stringify(params),
     });
@@ -325,6 +339,16 @@ export interface QuestionItem {
   answerCount: number;
   publishedAt?: string;
   studentId_data?: { fullname: string; avatar: string };
+}
+
+export interface AnswerItem {
+  id: string;
+  questionId: string;
+  teacherId: string;
+  content: string;
+  attachments?: string;
+  createdAt?: string;
+  teacherId_data?: { fullname: string; avatar: string };
 }
 
 // ---- Helpers ----
