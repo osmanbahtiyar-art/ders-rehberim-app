@@ -3,20 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ders Rehberim</title>
-    <meta name="description" content="Özel ders platformu — öğrenci, öğretmen ve veliler için" />
-    <meta name="author" content="Ders Rehberim" />
-    <meta property="og:title" content="Ders Rehberim" />
-    <meta property="og:description" content="Özel ders platformu" />
+    <title>Özel Ders Rehberim — Doğru Öğretmeni Bul</title>
+    <meta name="description" content="Alanında uzman öğretmenlerle birebir özel ders al. TYT, AYT, LGS ve daha fazlası için güvenilir destek. Ücretsiz başvur!" />
+    <meta name="author" content="Özel Ders Rehberim" />
+    <meta name="keywords" content="özel ders, öğretmen, TYT, AYT, LGS, matematik, fizik, kimya, özel ders rehberim" />
+    <meta property="og:title" content="Özel Ders Rehberim — Doğru Öğretmeni Bul" />
+    <meta property="og:description" content="Alanında uzman öğretmenlerle birebir özel ders al. Ücretsiz başvur!" />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ozeldersrehberim.net" />
+    <link rel="canonical" href="https://ozeldersrehberim.net" />
 
-    <!-- GitHub Pages SPA yönlendirme -->
+    <!-- GitHub Pages SPA yönlendirme (custom domain) -->
     <script>
       (function(){
-        var redirect = sessionStorage.redirect;
-        delete sessionStorage.redirect;
-        if (redirect && redirect !== location.href) {
-          history.replaceState(null, null, redirect);
+        var query = window.location.search;
+        if (query.slice(1,3) === 'p=') {
+          var path = query.slice(3).replace(/~and~/g, '&');
+          var search = '';
+          var idx = path.indexOf('&q=');
+          if (idx !== -1) {
+            search = '?' + path.slice(idx + 3).replace(/~and~/g, '&');
+            path = path.slice(0, idx);
+          }
+          window.history.replaceState(null, null, '/' + path + search + window.location.hash);
         }
       })();
     </script>
