@@ -38,14 +38,25 @@ export function friendlyError(err: unknown): string {
   return msg || 'Beklenmeyen bir hata oluştu.';
 }
 
-async function parseJSON(res: Response): Promise<Record<string, unknown>> {
+async function parseJSON(res: Response, url?: string): Promise<Record<string, unknown>> {
   const text = await res.text();
   if (!text || !text.trim()) return {};
+
+  // HTML yanıtı — servis henüz hazır değil veya endpoint yok
+  if (text.trimStart().startsWith('<')) {
+    const preview = text.slice(0, 120);
+    console.error(`[ODR API] HTML yanıtı alındı (${res.status}) → ${url ?? ''}\nPreview: ${preview}`);
+    throw new ApiError(
+      `Servis yanıt vermiyor (HTML döndü, status: ${res.status}). Endpoint kontrol edin: ${url ?? ''}`,
+      'HtmlResponse',
+      res.status
+    );
+  }
+
   try {
     return JSON.parse(text);
   } catch {
-    // HTML hata sayfası veya bozuk yanıt
-    console.error('JSON parse hatası, ham yanıt:', text.slice(0, 200));
+    console.error('[ODR API] JSON parse hatası, ham yanıt:', text.slice(0, 200));
     if (!res.ok) throw new ApiError(`Sunucu hatası (${res.status})`, 'ServerError', res.status);
     return {};
   }
@@ -59,9 +70,14 @@ async function req<T>(service: string, path: string, options: RequestInit = {}):
   };
   if (token) headers['odr-access-token'] = token;
 
+  const fullUrl = `${BASE}/${service}${path}`;
+
+  // Her isteği logla (token'ın varlığını göster, değerini değil)
+  console.log(`[ODR API] ${options.method ?? 'GET'} ${fullUrl} | token: ${token ? '✓' : '✗ YOK'}`);
+
   let res: Response;
   try {
-    res = await fetch(`${BASE}/${service}${path}`, { ...options, headers });
+    res = await fetch(fullUrl, { ...options, headers });
   } catch (networkErr) {
     throw new ApiError('Sunucuya bağlanılamadı. Lütfen tekrar deneyin.', 'NetworkError', 0);
   }
@@ -69,8 +85,11 @@ async function req<T>(service: string, path: string, options: RequestInit = {}):
   const newToken = res.headers.get('odr-access-token');
   if (newToken) setToken(newToken);
 
-  const data = await parseJSON(res);
+  const data = await parseJSON(res, fullUrl);
   if (!res.ok) throw new ApiError((data.message as string) || 'API hatası', (data.errCode as string) || '', res.status);
+
+  // Başarılı yanıtın key'lerini logla
+  console.log(`[ODR API] ✓ ${service}${path} → keys: [${Object.keys(data).join(', ')}]`);
   return data as T;
 }
 
@@ -396,6 +415,31 @@ export interface AnswerItem {
   teacherId_data?: { fullname: string; avatar: string };
 }
 
+// ---- Messages ----
+
+export interface MessageItem {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  createdAt: string;
+  isRead?: boolean;
+  flagged?: boolean;
+  senderId_data?: { fullname: string; avatar: string; roleId: string };
+  receiverId_data?: { fullname: string; avatar: string; roleId: string };
+}
+
+export interface ConversationItem {
+  id: string;
+  participantA: string;
+  participantB: string;
+  lastMessage: string;
+  lastMessageAt: string;
+  messageCount?: number;
+  participantA_data?: { fullname: string; avatar: string; roleId: string };
+  participantB_data?: { fullname: string; avatar: string; roleId: string };
+}
+
 // ---- Admin ----
 
 export interface AdminUser {
@@ -412,16 +456,20 @@ export interface AdminUser {
 
 export interface AdminUsersResponse {
   status: string;
-  rowCount: number;
-  users: AdminUser[];
-  paging: { pageNumber: number; pageRowCount: number; totalRowCount: number; pageCount: number };
+  rowCount?: number;
+  /** Bazı backend versiyonlarında "users", bazılarında başka bir key gelebilir.
+   *  AdminPanel'de extractList() ile dinamik olarak bulunur. */
+  users?: AdminUser[];
+  [key: string]: AdminUser[] | number | string | object | undefined;
+  paging?: { pageNumber: number; pageRowCount: number; totalRowCount: number; pageCount: number };
 }
 
 export const adminApi = {
   listUsers: async (params?: { pageNumber?: number; pageRowCount?: number; search?: string }) => {
     const q = new URLSearchParams();
-    if (params?.pageNumber) q.set('pageNumber', String(params.pageNumber));
-    if (params?.pageRowCount) q.set('pageRowCount', String(params.pageRowCount));
+    // Backend'in default'u düşük olabilir, her zaman açıkça gönder
+    q.set('pageNumber', String(params?.pageNumber ?? 1));
+    q.set('pageRowCount', String(params?.pageRowCount ?? 500));
     if (params?.search) q.set('search', params.search);
     return req<AdminUsersResponse>('auth-api', `/v1/users?${q}`);
   },
@@ -458,6 +506,23 @@ export const adminApi = {
       method: 'PUT',
       body: JSON.stringify({ status }),
     });
+  },
+
+  listAllMessages: async (params?: { pageRowCount?: number; pageNumber?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.pageRowCount) q.set('pageRowCount', String(params.pageRowCount));
+    if (params?.pageNumber) q.set('pageNumber', String(params.pageNumber));
+    return req<OdrListResponse<MessageItem>>('messaging-api', `/v1/messages?${q}`);
+  },
+
+  listConversationMessages: async (conversationId: string) => {
+    return req<OdrListResponse<MessageItem>>('messaging-api', `/v1/messages?conversationId=${conversationId}`);
+  },
+
+  listAllConversations: async (params?: { pageRowCount?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.pageRowCount) q.set('pageRowCount', String(params.pageRowCount));
+    return req<OdrListResponse<ConversationItem>>('messaging-api', `/v1/conversations?${q}`);
   },
 };
 
