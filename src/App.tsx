@@ -4,31 +4,18 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
-import ProtectedRoute from "@/components/ProtectedRoute";
-import Landing from "./pages/Landing";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import VerifyEmail from "./pages/VerifyEmail";
-import VerifyMobile from "./pages/VerifyMobile";
-import TwoFactorAuth from "./pages/TwoFactorAuth";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import HomePage from "./pages/HomePage";
-import SearchPage from "./pages/SearchPage";
-import TeacherProfile from "./pages/TeacherProfile";
-import AskQuestion from "./pages/AskQuestion";
-import MyLessons from "./pages/MyLessons";
-import Messages from "./pages/Messages";
-import Profile from "./pages/Profile";
-import SolveQuestions from "./pages/SolveQuestions";
-import AdminPanel from "./pages/admin/AdminPanel";
-import AdminLogin from "./pages/admin/AdminLogin";
 import AdminRoute from "./components/AdminRoute";
-import FavoriteTeachers from "./pages/FavoriteTeachers";
-import Coupons from "./pages/Coupons";
-import Settings from "./pages/Settings";
-import Reviews from "./pages/Reviews";
+
+// Public pages
+import Landing from "./pages/Landing";
+import StudentApplication from "./pages/StudentApplication";
+import TeacherApplication from "./pages/TeacherApplication";
+import ApplicationSuccess from "./pages/ApplicationSuccess";
 import NotFound from "./pages/NotFound";
+
+// Admin pages
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminPanel from "./pages/admin/AdminPanel";
 
 const queryClient = new QueryClient();
 
@@ -40,28 +27,17 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* ── Public ── */}
             <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/verify-email" element={<VerifyEmail />} />
-            <Route path="/verify-mobile" element={<VerifyMobile />} />
-            <Route path="/2fa" element={<TwoFactorAuth />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
-            <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
-            <Route path="/teacher/:id" element={<ProtectedRoute><TeacherProfile /></ProtectedRoute>} />
-            <Route path="/ask-question" element={<ProtectedRoute><AskQuestion /></ProtectedRoute>} />
-            <Route path="/solve-questions" element={<ProtectedRoute><SolveQuestions /></ProtectedRoute>} />
-            <Route path="/my-lessons" element={<ProtectedRoute><MyLessons /></ProtectedRoute>} />
-            <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-            <Route path="/favorites" element={<ProtectedRoute><FavoriteTeachers /></ProtectedRoute>} />
-            <Route path="/coupons" element={<ProtectedRoute><Coupons /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            <Route path="/reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
+            <Route path="/ogrenci-basvuru" element={<StudentApplication />} />
+            <Route path="/ogretmen-basvuru" element={<TeacherApplication />} />
+            <Route path="/basvuru-basarili" element={<ApplicationSuccess />} />
+
+            {/* ── Admin ── */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
+
+            {/* ── 404 ── */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
