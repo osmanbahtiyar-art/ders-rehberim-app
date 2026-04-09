@@ -123,11 +123,13 @@ const roleTR: Record<string, string> = {
 
 function Avatar({ src, name, size = 10 }: { src?: string; name: string; size?: number }) {
   const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(name || '?')}&background=6366f1&color=fff`;
+  const px = size * 4; // Tailwind 1 birim = 4px
   return (
     <img
       src={src || fallback}
       alt={name}
-      className={`h-${size} w-${size} rounded-full object-cover border border-border shrink-0`}
+      style={{ width: px, height: px }}
+      className="rounded-full object-cover border border-border shrink-0"
     />
   );
 }
@@ -210,7 +212,7 @@ const DashboardTab = () => {
     retry: 1,
   });
 
-  const anyError = usersErr; // ODR hataları kritik değil
+  const anyError = usersErr;
 
   const totalStudents = supaUsers.filter((u) => !u.role || u.role === "student").length;
   const totalTeachers = supaUsers.filter((u) => u.role === "teacher").length;
@@ -222,12 +224,6 @@ const DashboardTab = () => {
 
   const questions: QuestionItem[] = extractList<QuestionItem>(questionsData);
   const pendingQuestions = questions.filter((q) => q.status === "pending").length;
-
-  // eski değişkenler artık kullanılmıyor — dummy değerler
-  const verifiedUsers = 0;
-  const activeUsers = totalUsers;
-  const bannedUsers = 0;
-  const totalParents = 0;
 
   const statCards = [
     { label: "Toplam Öğrenci",   value: totalStudents,    icon: Users,        color: "text-blue-500",   bg: "bg-blue-50 dark:bg-blue-950/30" },

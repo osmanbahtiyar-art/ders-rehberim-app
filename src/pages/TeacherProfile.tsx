@@ -6,7 +6,7 @@ import BottomNav from "@/components/BottomNav";
 import { Calendar as CalendarPicker } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { teacherApi, bookingApi, normalizeTeacher } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
@@ -45,10 +45,10 @@ const TeacherProfile = () => {
     mutationFn: bookingApi.book,
     onSuccess: () => {
       setStep("done");
-      toast({ title: "Ders planlandı! ✅", description: `${teacher?.name} ile dersiniz onaylandı.` });
+      toast.success(`${teacher?.name ?? "Öğretmen"} ile dersiniz planlandı!`);
     },
     onError: (err: Error) => {
-      toast({ title: "Hata", description: err.message, variant: "destructive" });
+      toast.error(err.message || "Rezervasyon sırasında bir hata oluştu.");
     },
   });
 
@@ -68,7 +68,7 @@ const TeacherProfile = () => {
   const handleBook = () => {
     if (!teacher || !user || !selectedDate || !selectedSlot) return;
     const [startH, startM] = selectedSlot.split(":").map(Number);
-    const endH = startH + 1;
+    const endH = Math.min(startH + 1, 23);
     bookMutation.mutate({
       teacherId: teacher.teacherId,
       studentId: user.userId,

@@ -8,10 +8,16 @@ import BottomNav from "@/components/BottomNav";
 import { subjects, exams, grades } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
+import { qaApi } from "@/lib/api";
 
 const AskQuestion = () => {
   const navigate = useNavigate();
   const [image, setImage] = useState<string | null>(null);
+  const [branch, setBranch] = useState("");
+  const [examType, setExamType] = useState("");
+  const [grade, setGrade] = useState("");
+  const [content, setContent] = useState("");
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -22,9 +28,30 @@ const AskQuestion = () => {
     }
   };
 
+  const submitMutation = useMutation({
+    mutationFn: () =>
+      qaApi.submitQuestion({
+        content: content.trim() || "(Fotoğraflı soru)",
+        branch: branch || "Genel",
+        examType: examType || "Diğer",
+        status: "pending",
+        attachments: image ?? undefined,
+      }),
+    onSuccess: () => {
+      toast.success("Sorunuz gönderildi! Admin onayından sonra yayınlanacaktır.");
+      navigate("/home");
+    },
+    onError: () => {
+      toast.error("Soru gönderilirken bir hata oluştu. Lütfen tekrar deneyin.");
+    },
+  });
+
   const handleSubmit = () => {
-    toast.success("Sorunuz gönderildi! Admin onayından sonra yayınlanacaktır.");
-    navigate("/home");
+    if (!image && !content.trim()) {
+      toast.error("Lütfen bir fotoğraf yükleyin veya soru açıklaması yazın.");
+      return;
+    }
+    submitMutation.mutate();
   };
 
   return (
@@ -66,7 +93,7 @@ const AskQuestion = () => {
 
         <div className="space-y-2">
           <Label>Ders</Label>
-          <Select>
+          <Select value={branch} onValueChange={setBranch}>
             <SelectTrigger><SelectValue placeholder="Ders seçin" /></SelectTrigger>
             <SelectContent>
               {subjects.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
@@ -76,7 +103,7 @@ const AskQuestion = () => {
 
         <div className="space-y-2">
           <Label>Sınav</Label>
-          <Select>
+          <Select value={examType} onValueChange={setExamType}>
             <SelectTrigger><SelectValue placeholder="Sınav seçin" /></SelectTrigger>
             <SelectContent>
               {exams.map((e) => <SelectItem key={e} value={e}>{e}</SelectItem>)}
@@ -86,7 +113,7 @@ const AskQuestion = () => {
 
         <div className="space-y-2">
           <Label>Sınıf</Label>
-          <Select>
+          <Select value={grade} onValueChange={setGrade}>
             <SelectTrigger><SelectValue placeholder="Sınıf seçin" /></SelectTrigger>
             <SelectContent>
               {grades.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
@@ -96,12 +123,23 @@ const AskQuestion = () => {
 
         <div className="space-y-2">
           <Label>Açıklama (opsiyonel)</Label>
-          <Textarea placeholder="Sorunuz hakkında ek bilgi yazabilirsiniz..." rows={3} />
+          <Textarea
+            placeholder="Sorunuz hakkında ek bilgi yazabilirsiniz..."
+            rows={3}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
         </div>
 
-        <Button variant="hero" size="lg" className="w-full gap-2" onClick={handleSubmit}>
+        <Button
+          variant="hero"
+          size="lg"
+          className="w-full gap-2"
+          onClick={handleSubmit}
+          disabled={submitMutation.isPending}
+        >
           <Upload className="h-4 w-4" />
-          Soruyu Gönder
+          {submitMutation.isPending ? "Gönderiliyor..." : "Soruyu Gönder"}
         </Button>
 
         <p className="text-center text-xs text-muted-foreground">

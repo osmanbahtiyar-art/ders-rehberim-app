@@ -11,6 +11,7 @@ import { teacherApi, normalizeTeacher } from "@/lib/api";
 const SearchPage = () => {
   const navigate = useNavigate();
   const [showFilters, setShowFilters] = useState(false);
+  const [searchText, setSearchText] = useState("");
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [selectedExam, setSelectedExam] = useState<string | null>(null);
 
@@ -19,8 +20,20 @@ const SearchPage = () => {
     queryFn: () => teacherApi.list({ branch: selectedSubject ?? undefined, pageRowCount: 50 }),
   });
 
-  const rawTeachers = (data as Record<string, unknown>)?.teacherProfile as unknown[] | undefined;
-  const teachers = (rawTeachers ?? []).map((t) => normalizeTeacher(t as Parameters<typeof normalizeTeacher>[0]));
+  const rawKey = data
+    ? Object.keys(data as object).find((k) => Array.isArray((data as Record<string, unknown>)[k]))
+    : undefined;
+  const allTeachers = rawKey
+    ? ((data as Record<string, unknown[]>)[rawKey] || []).map((t) => normalizeTeacher(t as Parameters<typeof normalizeTeacher>[0]))
+    : [];
+
+  // Metin araması — isim veya branş
+  const teachers = searchText.trim()
+    ? allTeachers.filter((t) =>
+        t.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        t.subject.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : allTeachers;
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -31,7 +44,13 @@ const SearchPage = () => {
           </button>
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Ders veya öğretmen ara..." className="pl-10" autoFocus />
+            <Input
+              placeholder="Ders veya öğretmen ara..."
+              className="pl-10"
+              autoFocus
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
           </div>
           <button onClick={() => setShowFilters(!showFilters)} className="rounded-lg border border-border p-2">
             <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />

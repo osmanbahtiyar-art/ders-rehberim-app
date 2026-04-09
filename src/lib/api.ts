@@ -129,6 +129,13 @@ export const authApi = {
     return req<OdrSession>('auth-api', '/currentuser');
   },
 
+  updateProfile: async (params: { fullname: string }) => {
+    return req<{ status: string }>('auth-api', '/v1/updateprofile', {
+      method: 'PUT',
+      body: JSON.stringify(params),
+    });
+  },
+
   register: async (params: { email: string; password: string; fullname: string }): Promise<RegisterResponse> => {
     return req<RegisterResponse>('auth-api', '/v1/registeruser', {
       method: 'POST',
@@ -255,7 +262,7 @@ export const qaApi = {
     return req<OdrListResponse<QuestionItem>>('qaplatform-api', `/v1/questions?${q}`);
   },
 
-  submitQuestion: async (params: { content: string; branch: string; examType: string; status: string }) => {
+  submitQuestion: async (params: { content: string; branch: string; examType: string; status: string; attachments?: string }) => {
     return req<OdrItemResponse<QuestionItem>>('qaplatform-api', '/v1/question', {
       method: 'POST',
       body: JSON.stringify(params),

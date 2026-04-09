@@ -23,10 +23,17 @@ const HomePage = () => {
     queryFn: () => qaApi.listQuestions({ pageRowCount: 6 }),
   });
 
-  const rawTeachers = (teachersData as Record<string, unknown>)?.teacherProfile as unknown[] | undefined;
-  const teachers = (rawTeachers ?? []).map((t) => normalizeTeacher(t as Parameters<typeof normalizeTeacher>[0]));
+  const rawTeachersKey = teachersData
+    ? Object.keys(teachersData as object).find((k) => Array.isArray((teachersData as Record<string, unknown>)[k]))
+    : undefined;
+  const teachers = rawTeachersKey
+    ? ((teachersData as Record<string, unknown[]>)[rawTeachersKey] || []).map((t) => normalizeTeacher(t as Parameters<typeof normalizeTeacher>[0]))
+    : [];
 
-  const rawQuestions = (questionsData as Record<string, unknown>)?.studentQuestion as unknown[] | undefined;
+  const rawQKey = questionsData
+    ? Object.keys(questionsData as object).find((k) => Array.isArray((questionsData as Record<string, unknown>)[k]))
+    : undefined;
+  const rawQuestions = rawQKey ? (questionsData as Record<string, unknown[]>)[rawQKey] : [];
   const questions = (rawQuestions ?? []) as Array<{
     id: string;
     branch: string;

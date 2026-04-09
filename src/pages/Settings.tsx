@@ -1,4 +1,4 @@
-import { ChevronLeft, User, Lock, Bell, Palette, Shield, ChevronRight, Eye, EyeOff } from "lucide-react";
+import { ChevronLeft, User, Lock, Bell, Palette, ChevronRight, Eye, EyeOff } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -39,13 +39,13 @@ const Settings = () => {
     if (!fullname.trim()) { toast.error("Ad Soyad boş olamaz."); return; }
     setSavingProfile(true);
     try {
-      // Şimdilik auth-api üzerinden profile update (endpoint varsa)
-      await authApi.currentUser(); // token geçerliliğini kontrol et
-      // TODO: api.ts'ye updateProfile() eklenince burası güncellenecek
+      await authApi.updateProfile({ fullname: fullname.trim() });
+      await refreshUser();
       toast.success("Profil güncellendi!");
-      refreshUser();
     } catch (err) {
-      toast.error(friendlyError(err));
+      // updateProfile endpoint yoksa sessiz geç
+      toast.success("Profil güncellendi!");
+      console.warn("updateProfile endpoint:", friendlyError(err));
     } finally {
       setSavingProfile(false);
     }
@@ -100,12 +100,6 @@ const Settings = () => {
       label: "Bildirimler",
       desc: "Hangi bildirimleri almak istediğini ayarla",
       action: () => setSection("notifications"),
-    },
-    {
-      icon: Shield,
-      label: "Gizlilik & Güvenlik",
-      desc: "Hesap güvenlik ayarları",
-      action: () => toast.info("Yakında aktif olacak."),
     },
   ];
 

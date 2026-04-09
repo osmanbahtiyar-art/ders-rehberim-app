@@ -76,7 +76,7 @@ const FavoriteTeachers = () => {
           {favorites.map((t) => (
             <button
               key={t.id}
-              onClick={() => navigate(`/teacher/${t.teacherId}`)}
+              onClick={() => navigate(`/teacher/${t.id}`)}
               className="flex w-full items-center gap-4 rounded-xl border border-border bg-card p-4 text-left shadow-card transition-all hover:shadow-md hover:border-primary/20"
             >
               <img
