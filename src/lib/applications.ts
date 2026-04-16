@@ -135,6 +135,113 @@ export const applicationStore = {
   },
 };
 
+// ── Eşleştirme Sistemi ───────────────────────────────────────────
+
+export type MatchStatus = "pending" | "approved" | "rejected";
+
+export interface Match {
+  id: string;
+  studentAppId: string;
+  teacherAppId: string;
+  subject: string;
+  status: MatchStatus;
+  createdAt: string;
+}
+
+const MATCH_KEY = "odr-matches";
+
+function loadMatches(): Match[] {
+  try { return JSON.parse(localStorage.getItem(MATCH_KEY) || "[]"); }
+  catch { return []; }
+}
+
+function saveMatches(m: Match[]): void {
+  localStorage.setItem(MATCH_KEY, JSON.stringify(m));
+}
+
+/** Verilen başvurulardan öğrenci-öğretmen eşleştirme önerileri üretir. */
+export function generateMatchSuggestions(apps: Application[]): Match[] {
+  const studentApps = apps.filter((a) => a.type === "student" && a.status !== "rejected");
+  const teacherApps = apps.filter((a) => a.type === "teacher" && a.status !== "rejected");
+  const existing = loadMatches();
+
+  const newMatches: Match[] = [];
+
+  for (const sa of studentApps) {
+    const subjects = ((sa.data as StudentApplicationData).subjects ?? []).map((s) => s.trim().toLowerCase());
+    for (const ta of teacherApps) {
+      const branch = ((ta.data as TeacherApplicationData).branch ?? "").trim().toLowerCase();
+      if (!branch) continue;
+
+      const matchingSubject = subjects.find(
+        (s) => s === branch || branch.includes(s) || s.includes(branch)
+      );
+      if (!matchingSubject) continue;
+
+      const alreadyExists = existing.some(
+        (m) => m.studentAppId === sa.id && m.teacherAppId === ta.id
+      );
+      if (alreadyExists) continue;
+
+      newMatches.push({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        studentAppId: sa.id,
+        teacherAppId: ta.id,
+        subject: matchingSubject,
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      });
+    }
+  }
+
+  const all = [...existing, ...newMatches];
+  saveMatches(all);
+  return all;
+}
+
+/** Öğrencilerin istediği ama öğretmen başvurusu olmayan dersler. */
+export function getSubjectGaps(apps: Application[]): Array<{ subject: string; count: number }> {
+  const studentApps = apps.filter((a) => a.type === "student" && a.status !== "rejected");
+  const teacherApps = apps.filter((a) => a.type === "teacher" && a.status !== "rejected");
+
+  const teacherBranches = teacherApps.map((a) =>
+    ((a.data as TeacherApplicationData).branch ?? "").trim().toLowerCase()
+  );
+
+  const subjectCount: Record<string, number> = {};
+  for (const app of studentApps) {
+    for (const s of (app.data as StudentApplicationData).subjects ?? []) {
+      const key = s.trim().toLowerCase();
+      if (key) subjectCount[key] = (subjectCount[key] ?? 0) + 1;
+    }
+  }
+
+  return Object.entries(subjectCount)
+    .filter(([subj]) => !teacherBranches.some((b) => b.includes(subj) || subj.includes(b)))
+    .map(([subject, count]) => ({ subject, count }))
+    .sort((a, b) => b.count - a.count);
+}
+
+export const matchStore = {
+  list(): Match[] { return loadMatches(); },
+
+  updateStatus(id: string, status: MatchStatus): void {
+    const matches = loadMatches();
+    const idx = matches.findIndex((m) => m.id === id);
+    if (idx !== -1) { matches[idx].status = status; saveMatches(matches); }
+  },
+
+  counts() {
+    const all = loadMatches();
+    return {
+      pending: all.filter((m) => m.status === "pending").length,
+      approved: all.filter((m) => m.status === "approved").length,
+    };
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────
+
 export const statusTR: Record<ApplicationStatus, string> = {
   pending: "Bekliyor",
   contacted: "İletişime Geçildi",
