@@ -5,14 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
-import { ApiError, friendlyError } from "@/lib/api";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const ADMIN_ROLES = ["superAdmin", "admin"];
 
+// Admin e-postaları: VITE_ADMIN_EMAILS env değişkeninden (virgülle ayrılmış) alınır
+const ADMIN_EMAILS: string[] = (import.meta.env.VITE_ADMIN_EMAILS ?? "")
+  .split(",")
+  .map((e: string) => e.trim().toLowerCase())
+  .filter(Boolean);
+
 const AdminLogin = () => {
   const navigate = useNavigate();
-  const { login, user, loading } = useAuth();
+  const { user, loading, loginAsAdmin } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -21,47 +27,50 @@ const AdminLogin = () => {
   // Zaten admin olarak giriş yapılmışsa direkt panele gönder
   useEffect(() => {
     if (!loading && user && ADMIN_ROLES.includes(user.roleId)) {
-      navigate("/admin", { replace: true });
+      navigate("/yonetim/panel", { replace: true });
     }
   }, [user, loading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+
     try {
-      const res = await login(email, password);
+      // Supabase ile kimlik doğrulama
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-      // 2FA / doğrulama akışları
-      if (res.emailVerificationNeeded) {
-        toast.error("E-posta doğrulaması gerekiyor.");
+      if (authError || !authData.user) {
+        toast.error("E-posta veya şifre hatalı.");
         setSubmitting(false);
         return;
       }
-      if (res.sessionNeedsEmail2FA) {
-        navigate("/2fa", { state: { type: "email", userId: res.userId, sessionId: res.sessionId, redirectTo: "/admin" } });
-        return;
-      }
-      if (res.sessionNeedsMobile2FA) {
-        navigate("/2fa", { state: { type: "mobile", userId: res.userId, sessionId: res.sessionId, redirectTo: "/admin" } });
-        return;
-      }
 
-      // Rol kontrolü — sadece admin/superAdmin geçebilir
-      if (!ADMIN_ROLES.includes(res.roleId ?? "")) {
+      const userEmail = (authData.user.email ?? "").toLowerCase();
+
+      // E-posta admin listesinde değilse erişimi reddet
+      if (!ADMIN_EMAILS.includes(userEmail)) {
         toast.error("Bu hesabın admin paneline erişim yetkisi yok.");
+        await supabase.auth.signOut();
         setSubmitting(false);
         return;
       }
+
+      // Admin kullanıcısını context'e yükle
+      loginAsAdmin({
+        userId: authData.user.id,
+        email: authData.user.email ?? email,
+        fullname: authData.user.user_metadata?.full_name ?? email,
+        roleId: "admin",
+        avatar: authData.user.user_metadata?.avatar_url ?? "",
+      });
 
       toast.success("Admin paneline hoş geldiniz!");
-      navigate("/admin", { replace: true });
-    } catch (err) {
-      if (err instanceof ApiError) {
-        const badCreds = ["invalid_credentials", "InvalidCredentials", "WrongPassword"];
-        toast.error(badCreds.includes(err.errCode) ? "E-posta veya şifre hatalı." : friendlyError(err));
-      } else {
-        toast.error(friendlyError(err));
-      }
+      navigate("/yonetim/panel", { replace: true });
+    } catch {
+      toast.error("Bağlantı hatası. Lütfen tekrar deneyin.");
       setSubmitting(false);
     }
   };
@@ -90,7 +99,7 @@ const AdminLogin = () => {
           </div>
           <h1 className="text-2xl font-bold text-white">Admin Girişi</h1>
           <p className="mt-1.5 text-sm text-gray-400">
-            OzelDers Yönetim Paneline erişmek için <br className="hidden sm:block" />
+            Yönetim paneline erişmek için <br className="hidden sm:block" />
             admin kimlik bilgilerinizi girin.
           </p>
         </div>
@@ -157,16 +166,6 @@ const AdminLogin = () => {
             )}
           </Button>
         </form>
-
-        {/* Alt link */}
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => navigate("/login")}
-            className="text-sm text-gray-500 hover:text-gray-300 transition-colors"
-          >
-            ← Normal kullanıcı girişine dön
-          </button>
-        </div>
 
         {/* Güvenlik notu */}
         <div className="mt-8 flex items-start gap-2 rounded-lg border border-gray-800 bg-gray-900/50 px-4 py-3">

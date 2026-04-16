@@ -33,9 +33,9 @@ const App = () => (
             <Route path="/ogretmen-basvuru" element={<TeacherApplication />} />
             <Route path="/basvuru-basarili" element={<ApplicationSuccess />} />
 
-            {/* ── Admin ── */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
+            {/* ── Admin (gizli URL) ── */}
+            <Route path="/yonetim" element={<AdminLogin />} />
+            <Route path="/yonetim/panel" element={<AdminRoute><AdminPanel /></AdminRoute>} />
 
             {/* ── 404 ── */}
             <Route path="*" element={<NotFound />} />

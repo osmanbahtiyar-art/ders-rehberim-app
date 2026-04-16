@@ -30,6 +30,8 @@ interface AuthContextType {
   /** 2FA tamamlandıktan sonra kullanıcıyı context'e yükler */
   refreshUser: () => Promise<void>;
   signOut: () => Promise<void>;
+  /** Supabase auth ile doğrulanmış admin kullanıcısını context'e yükler */
+  loginAsAdmin: (session: OdrSession) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -39,6 +41,7 @@ const AuthContext = createContext<AuthContextType>({
   demoLogin: () => {},
   refreshUser: async () => {},
   signOut: async () => {},
+  loginAsAdmin: () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -102,8 +105,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
+  const loginAsAdmin = (session: OdrSession) => {
+    setUser(session);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, demoLogin, refreshUser, signOut }}>
+    <AuthContext.Provider value={{ user, loading, login, demoLogin, refreshUser, signOut, loginAsAdmin }}>
       {children}
     </AuthContext.Provider>
   );

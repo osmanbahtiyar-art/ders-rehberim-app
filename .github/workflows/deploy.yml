@@ -32,6 +32,9 @@ jobs:
       - name: Build
         env:
           VITE_API_BASE: https://odr.prw.mindbricks.com
+          VITE_SUPABASE_URL: https://vvztrggvdkcputefkqpq.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2enRyZ2d2ZGtjcHV0ZWZrcXBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2MzUyNTYsImV4cCI6MjA5MTIxMTI1Nn0.aXVLqwhq6p53IGp8SePnSSv0kxqGNrbppfPq1FqU6Ro
+          VITE_ADMIN_EMAILS: obhtyr@gmail.com
         run: npm run build
 
       - name: Upload artifact
