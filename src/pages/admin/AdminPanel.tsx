@@ -19,7 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-type Tab = "dashboard" | "applications" | "matching";
+type Tab = "dashboard" | "applications" | "matching" | "teachers";
 
 // ── Supabase kullanıcı sayıları ───────────────────────────────────
 
@@ -783,6 +783,139 @@ const MatchingTab = () => {
   );
 };
 
+// ── ONAYLANAN ÖĞRETMENLER ─────────────────────────────────────────
+
+const TeachersTab = () => {
+  const [search, setSearch] = useState("");
+  const [apps, setApps] = useState<Application[]>(() =>
+    applicationStore.list().filter((a) => a.type === "teacher" && a.status === "accepted")
+  );
+
+  const refresh = () =>
+    setApps(applicationStore.list().filter((a) => a.type === "teacher" && a.status === "accepted"));
+
+  const filtered = apps.filter((a) => {
+    if (!search) return true;
+    const d = a.data as TeacherApplicationData;
+    const q = search.toLowerCase();
+    return (
+      d.fullname.toLowerCase().includes(q) ||
+      d.branch.toLowerCase().includes(q) ||
+      d.email.toLowerCase().includes(q)
+    );
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="İsim, branş veya e-posta..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <Button variant="outline" size="icon" onClick={refresh} title="Yenile">
+          <RefreshCw className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="flex flex-col items-center py-16 text-center">
+          <GraduationCap className="h-12 w-12 text-muted-foreground/30 mb-3" />
+          <p className="font-medium text-foreground">
+            {apps.length === 0 ? "Henüz onaylanan öğretmen yok" : "Arama sonucu bulunamadı"}
+          </p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {apps.length === 0
+              ? "Başvurular sekmesinden öğretmen başvurularını 'Kabul Edildi' olarak işaretleyin."
+              : "Farklı bir arama deneyin."}
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {filtered.map((app) => {
+            const d = app.data as TeacherApplicationData;
+            return (
+              <div key={app.id} className="rounded-2xl border border-emerald-100 bg-card p-5 shadow-sm">
+                {/* Başlık */}
+                <div className="flex items-start gap-3">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-lg font-bold text-white">
+                    {d.fullname.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-foreground">{d.fullname}</p>
+                    <p className="text-sm text-emerald-700 font-medium">{d.branch}</p>
+                    {d.experience && (
+                      <p className="text-xs text-muted-foreground mt-0.5">{d.experience} yıl deneyim</p>
+                    )}
+                  </div>
+                  {d.hourlyRate && (
+                    <span className="shrink-0 rounded-xl bg-emerald-50 px-2.5 py-1 text-sm font-bold text-emerald-700">
+                      ₺{d.hourlyRate}/sa
+                    </span>
+                  )}
+                </div>
+
+                {/* İletişim */}
+                <div className="mt-3 space-y-1.5 rounded-xl bg-muted/40 p-3">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                    <a href={`mailto:${d.email}`} className="text-primary hover:underline truncate">{d.email}</a>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                    <a href={`tel:${d.phone}`} className="text-primary hover:underline">{d.phone}</a>
+                  </div>
+                </div>
+
+                {/* Detaylar */}
+                {(d.availableDays?.length > 0 || d.qualifications || d.about) && (
+                  <div className="mt-3 space-y-2 border-t border-border pt-3">
+                    {d.availableDays?.length > 0 && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground mb-1">Uygun Günler</p>
+                        <div className="flex flex-wrap gap-1">
+                          {d.availableDays.map((day) => (
+                            <span key={day} className="rounded-full bg-muted px-2 py-0.5 text-xs text-foreground">{day}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {d.qualifications && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground mb-1">Nitelikler</p>
+                        <p className="text-xs text-foreground">{d.qualifications}</p>
+                      </div>
+                    )}
+                    {d.about && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground mb-1">Hakkında</p>
+                        <p className="text-xs text-foreground line-clamp-2">{d.about}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(app.submittedAt).toLocaleDateString("tr-TR", { dateStyle: "medium" })}
+                  </span>
+                  <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
+                    <CheckCircle className="h-3 w-3" /> Onaylı
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ── ANA PANEL ─────────────────────────────────────────────────────
 
 const AdminPanel = () => {
@@ -793,9 +926,14 @@ const AdminPanel = () => {
   const appCounts = applicationStore.counts();
   const mCounts = matchStore.counts();
 
+  const approvedTeacherCount = applicationStore.list().filter(
+    (a) => a.type === "teacher" && a.status === "accepted"
+  ).length;
+
   const tabs: { key: Tab; label: string; icon: React.ElementType; badge?: number }[] = [
     { key: "dashboard", label: "Genel", icon: LayoutDashboard },
     { key: "applications", label: "Başvurular", icon: FileText, badge: appCounts.pending },
+    { key: "teachers", label: "Öğretmenler", icon: GraduationCap, badge: approvedTeacherCount > 0 ? undefined : undefined },
     { key: "matching", label: "Eşleştirme", icon: Link2, badge: mCounts.pending },
   ];
 
@@ -875,6 +1013,7 @@ const AdminPanel = () => {
       <div className="mx-auto max-w-5xl px-4 py-6">
         {activeTab === "dashboard" && <DashboardTab setTab={setActiveTab} />}
         {activeTab === "applications" && <ApplicationsTab />}
+        {activeTab === "teachers" && <TeachersTab />}
         {activeTab === "matching" && <MatchingTab />}
       </div>
     </div>
