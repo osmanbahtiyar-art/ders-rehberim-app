@@ -3,7 +3,7 @@ import logo from "@/assets/logo.png";
 import heroIllustration from "@/assets/hero-illustration.png";
 import {
   GraduationCap, BookOpen, CheckCircle, Star,
-  ArrowRight, Shield, Clock, Award, Users, Phone, Mail, MapPin
+  ArrowRight, Shield, Clock, Award, Users, Mail, MapPin
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -37,7 +37,10 @@ const Landing = () => {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <div className="flex items-center gap-2.5">
             <img src={logo} alt="Logo" width={36} height={36} />
-            <span className="text-base font-bold text-gray-900">Özel Ders Rehberim</span>
+            <div>
+              <span className="block text-base font-bold text-gray-900 leading-tight">Özel Ders Rehberim</span>
+              <span className="block text-xs font-medium text-indigo-600 leading-tight">Fatma Sağdıç</span>
+            </div>
           </div>
           <nav className="hidden items-center gap-6 md:flex">
             <a href="#nasil-calisir" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">Nasıl Çalışır?</a>
@@ -71,7 +74,7 @@ const Landing = () => {
           <div className="grid items-center gap-10 md:grid-cols-2">
             <div>
               <span className="inline-block rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700 mb-4">
-                🎓 Türkiye'nin Özel Ders Platformu
+                🎓 Fatma Sağdıç — Özel Ders Rehberim
               </span>
               <h1 className="text-4xl font-extrabold leading-tight text-gray-900 md:text-5xl">
                 Doğru Öğretmeni Bul,<br />
@@ -245,11 +248,10 @@ const Landing = () => {
             <h2 className="text-3xl font-bold text-gray-900">İletişim</h2>
             <p className="mt-2 text-gray-500">Sorularınız için bize ulaşın</p>
           </div>
-          <div className="grid gap-6 sm:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 max-w-2xl mx-auto">
             {[
-              { icon: Phone, title: "Telefon", value: "+90 (555) 000 00 00" },
-              { icon: Mail, title: "E-posta", value: "info@ozeldersrehberim.net" },
-              { icon: MapPin, title: "Şehir", value: "İstanbul, Türkiye" },
+              { icon: Mail, title: "E-posta", value: "fatma.sagdic38@gmail.com" },
+              { icon: MapPin, title: "Şehir", value: "Kayseri, Türkiye" },
             ].map((c) => (
               <div key={c.title} className="rounded-2xl border border-gray-100 bg-gray-50 p-6 text-center">
                 <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100">
@@ -267,23 +269,20 @@ const Landing = () => {
             <h3 className="text-2xl font-bold">Hemen Başvur</h3>
             <p className="mt-2 text-indigo-200">Ücretsiz başvurunu yap, ekibimiz seni arasın.</p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row justify-center">
-              <Button
-                size="lg"
-                className="bg-white text-indigo-700 hover:bg-indigo-50 gap-2"
+              <button
                 onClick={() => navigate("/ogrenci-basvuru")}
+                className="flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-base font-semibold text-indigo-700 shadow-lg hover:bg-indigo-50 transition-colors"
               >
                 <GraduationCap className="h-5 w-5" />
                 Öğrenci Başvurusu
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white text-white hover:bg-white/10 gap-2"
+              </button>
+              <button
                 onClick={() => navigate("/ogretmen-basvuru")}
+                className="flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3 text-base font-semibold text-amber-900 shadow-lg hover:bg-amber-300 transition-colors"
               >
                 <BookOpen className="h-5 w-5" />
                 Öğretmen Başvurusu
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -294,9 +293,12 @@ const Landing = () => {
         <div className="mx-auto max-w-6xl flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-left">
           <div className="flex items-center gap-2">
             <img src={logo} alt="Logo" width={28} height={28} />
-            <span className="text-sm font-semibold text-gray-700">Özel Ders Rehberim</span>
+            <div>
+              <span className="block text-sm font-semibold text-gray-700 leading-tight">Özel Ders Rehberim</span>
+              <span className="block text-xs font-medium text-indigo-500 leading-tight">Fatma Sağdıç</span>
+            </div>
           </div>
-          <p className="text-xs text-gray-400">© 2026 Özel Ders Rehberim. Tüm hakları saklıdır.</p>
+          <p className="text-xs text-gray-400">© 2026 Fatma Sağdıç — Özel Ders Rehberim. Tüm hakları saklıdır.</p>
           <div className="flex gap-4 text-xs text-gray-400">
             <a href="#" className="hover:text-gray-700">Gizlilik</a>
             <a href="#" className="hover:text-gray-700">Şartlar</a>
