@@ -118,22 +118,6 @@ const Landing = () => {
             </div>
           </div>
         </div>
-
-        {/* İstatistikler */}
-        <div className="mx-auto mt-16 max-w-4xl">
-          <div className="grid grid-cols-3 gap-4 rounded-2xl border border-gray-100 bg-white/70 px-6 py-6 shadow-sm backdrop-blur-sm">
-            {[
-              { value: "500+", label: "Kayıtlı Öğretmen" },
-              { value: "2.000+", label: "Mutlu Öğrenci" },
-              { value: "4.9★", label: "Ortalama Puan" },
-            ].map((s) => (
-              <div key={s.label} className="text-center">
-                <p className="text-2xl font-extrabold text-indigo-600 md:text-3xl">{s.value}</p>
-                <p className="mt-0.5 text-xs text-gray-500 md:text-sm">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
       </section>
 
       {/* ── NASIL ÇALIŞIR ─────────────────────────────────────── */}
