@@ -1,11 +1,13 @@
-import { useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import heroIllustration from "@/assets/hero-illustration.png";
 import {
   GraduationCap, BookOpen, CheckCircle, Star,
-  ArrowRight, Shield, Clock, Award, Users, Mail, MapPin
+  ArrowRight, Clock, Award, Users, Mail, MapPin
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const STUDENT_FORM = "https://forms.gle/t38GioMe9E9DFY2e7";
+const TEACHER_FORM = "https://forms.gle/esRP1T51tbwEXVph8";
 
 const features = [
   { icon: CheckCircle, title: "Uzman Öğretmenler", desc: "Alanında deneyimli, başvurusu onaylanmış öğretmenlerle çalış." },
@@ -27,8 +29,6 @@ const subjects = [
 ];
 
 const Landing = () => {
-  const navigate = useNavigate();
-
   return (
     <div className="min-h-screen bg-white text-gray-900">
 
@@ -52,18 +52,10 @@ const Landing = () => {
             <Button
               size="sm"
               className="hidden bg-indigo-600 text-white hover:bg-indigo-500 md:flex"
-              onClick={() => navigate("/ogrenci-basvuru")}
+              onClick={() => window.open(STUDENT_FORM, "_blank")}
             >
               Hemen Başvur
             </Button>
-            {/* Admin giriş — görünmez ama erişilebilir */}
-            <button
-              onClick={() => navigate("/admin/login")}
-              className="rounded-lg p-1.5 text-gray-300 hover:text-gray-500 transition-colors"
-              title="Yönetim"
-            >
-              <Shield className="h-4 w-4" />
-            </button>
           </div>
         </div>
       </header>
@@ -87,7 +79,7 @@ const Landing = () => {
                 <Button
                   size="lg"
                   className="gap-2 bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-200 text-base"
-                  onClick={() => navigate("/ogrenci-basvuru")}
+                  onClick={() => window.open(STUDENT_FORM, "_blank")}
                 >
                   <GraduationCap className="h-5 w-5" />
                   Öğrenci Başvurusu
@@ -95,9 +87,8 @@ const Landing = () => {
                 </Button>
                 <Button
                   size="lg"
-                  variant="outline"
-                  className="gap-2 border-amber-400 text-amber-700 hover:bg-amber-50 text-base"
-                  onClick={() => navigate("/ogretmen-basvuru")}
+                  className="gap-2 bg-amber-400 text-amber-900 hover:bg-amber-300 shadow-lg text-base border-0"
+                  onClick={() => window.open(TEACHER_FORM, "_blank")}
                 >
                   <BookOpen className="h-5 w-5" />
                   Öğretmen Başvurusu
@@ -128,7 +119,7 @@ const Landing = () => {
           </div>
         </div>
 
-        {/* Istatistikler */}
+        {/* İstatistikler */}
         <div className="mx-auto mt-16 max-w-4xl">
           <div className="grid grid-cols-3 gap-4 rounded-2xl border border-gray-100 bg-white/70 px-6 py-6 shadow-sm backdrop-blur-sm">
             {[
@@ -163,6 +154,15 @@ const Landing = () => {
               </div>
             ))}
           </div>
+          <div className="mt-10 text-center">
+            <button
+              onClick={() => window.open(STUDENT_FORM, "_blank")}
+              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow hover:bg-indigo-500 transition-colors"
+            >
+              <GraduationCap className="h-4 w-4" />
+              Hemen Başvur
+            </button>
+          </div>
         </div>
       </section>
 
@@ -186,7 +186,7 @@ const Landing = () => {
           <div className="mt-10 text-center">
             <p className="text-sm text-gray-500">Aradığın dersi bulamadın mı?</p>
             <button
-              onClick={() => navigate("/ogrenci-basvuru")}
+              onClick={() => window.open(STUDENT_FORM, "_blank")}
               className="mt-2 text-sm font-semibold text-indigo-600 hover:underline"
             >
               Başvurunda belirt, sana uygun öğretmen bulalım →
@@ -224,15 +224,14 @@ const Landing = () => {
           <p className="mt-3 text-amber-100 text-lg max-w-xl mx-auto">
             Platformumuza katıl, öğrencilere ulaş ve ek gelir kazan. Başvurun ücretsiz!
           </p>
-          <Button
-            size="lg"
-            className="mt-8 bg-white text-amber-700 hover:bg-amber-50 gap-2 text-base shadow-lg"
-            onClick={() => navigate("/ogretmen-basvuru")}
+          <button
+            onClick={() => window.open(TEACHER_FORM, "_blank")}
+            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-base font-semibold text-amber-700 shadow-lg hover:bg-amber-50 transition-colors"
           >
             <BookOpen className="h-5 w-5" />
             Öğretmen Olarak Başvur
             <ArrowRight className="h-4 w-4" />
-          </Button>
+          </button>
           <div className="mt-6 flex justify-center gap-8 text-sm text-amber-100">
             <div className="flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> Ücretsiz üyelik</div>
             <div className="flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> Esnek çalışma</div>
@@ -270,14 +269,14 @@ const Landing = () => {
             <p className="mt-2 text-indigo-200">Ücretsiz başvurunu yap, ekibimiz seni arasın.</p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row justify-center">
               <button
-                onClick={() => navigate("/ogrenci-basvuru")}
+                onClick={() => window.open(STUDENT_FORM, "_blank")}
                 className="flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-base font-semibold text-indigo-700 shadow-lg hover:bg-indigo-50 transition-colors"
               >
                 <GraduationCap className="h-5 w-5" />
                 Öğrenci Başvurusu
               </button>
               <button
-                onClick={() => navigate("/ogretmen-basvuru")}
+                onClick={() => window.open(TEACHER_FORM, "_blank")}
                 className="flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3 text-base font-semibold text-amber-900 shadow-lg hover:bg-amber-300 transition-colors"
               >
                 <BookOpen className="h-5 w-5" />
@@ -302,7 +301,6 @@ const Landing = () => {
           <div className="flex gap-4 text-xs text-gray-400">
             <a href="#" className="hover:text-gray-700">Gizlilik</a>
             <a href="#" className="hover:text-gray-700">Şartlar</a>
-            <button onClick={() => navigate("/admin/login")} className="hover:text-gray-700">Yönetim</button>
           </div>
         </div>
       </footer>
