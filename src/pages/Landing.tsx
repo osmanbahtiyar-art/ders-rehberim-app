@@ -3,7 +3,7 @@ import heroIllustration from "@/assets/hero-illustration.png";
 import {
   GraduationCap, BookOpen, CheckCircle, Star,
   ArrowRight, Clock, Award, Users, Mail, MapPin,
-  Search, Target, TrendingUp
+  Brain, Zap, LineChart, Sparkles, Bot
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -12,16 +12,16 @@ const TEACHER_FORM = "https://forms.gle/esRP1T51tbwEXVph8";
 const GOLD = "#D4AF37";
 
 const features = [
-  { icon: CheckCircle, title: "Uzman Öğretmenler", desc: "Alanında deneyimli, başvurusu onaylanmış öğretmenlerle çalış." },
-  { icon: Clock, title: "Esnek Saatler", desc: "Sana uygun gün ve saatlerde ders planla." },
-  { icon: Star, title: "Garantili Kalite", desc: "Her öğretmen titizlikle seçilir ve değerlendirilir." },
-  { icon: Award, title: "Her Seviyeye Uygun", desc: "İlkokuldan üniversiteye, her sınıf ve konu için destek." },
+  { icon: Brain, title: "AI Destekli Eşleşme", desc: "Algoritma, öğrencinin hedef ve eksiklerine göre en uygun öğretmeni saniyeler içinde belirler." },
+  { icon: Clock, title: "Esnek Saatler", desc: "Sana uygun gün ve saatlerde ders planla, AI takviminizi optimize eder." },
+  { icon: Star, title: "Akıllı Kalite Kontrolü", desc: "Her öğretmen AI destekli değerlendirme sistemimizle titizlikle seçilir." },
+  { icon: Award, title: "Her Seviyeye Uygun", desc: "İlkokuldan üniversiteye, AI kişisel çalışma planıyla her konu için destek." },
 ];
 
 const steps = [
-  { num: "01", title: "Başvur", desc: "Öğrenci veya öğretmen olarak ücretsiz başvuru formunu doldur." },
-  { num: "02", title: "Eşleş", desc: "Ekibimiz ihtiyacına en uygun öğretmeni / öğrenciyi seçer." },
-  { num: "03", title: "Başla", desc: "Deneme dersiyle tanışın, ardından dilediğin sıklıkta ders al." },
+  { num: "01", title: "Başvur", desc: "Ücretsiz başvuru formunu doldur. AI sistemimiz profilini analiz eder." },
+  { num: "02", title: "AI Eşleştir", desc: "Gelişmiş algoritmamız ihtiyacına en uygun öğretmeni otomatik seçer." },
+  { num: "03", title: "Başla & Takip Et", desc: "Kişisel çalışma planınla ders al, haftalık gelişim raporlarını incele." },
 ];
 
 const subjects = [
@@ -32,19 +32,22 @@ const subjects = [
 
 const philosophy = [
   {
-    icon: Search,
-    title: "Bireysel Analiz",
-    desc: "Her öğrencinin öğrenme hızı ve stili özeldir. Başarı, bu özgünlüğü tanımakla başlar.",
+    icon: Brain,
+    title: "Akıllı Analiz",
+    badge: "AI-Powered",
+    desc: "Her öğrencinin öğrenme hızı ve stili yapay zeka ile analiz edilir. Başarı, öğrencinin bilişsel haritasını çıkarmakla başlar.",
   },
   {
-    icon: Target,
-    title: "Doğru Eşleşme",
-    desc: "Uzmanlık ve karakter yapısına göre en uygun öğretmen seçimi yapılır.",
+    icon: Zap,
+    title: "Algoritmik Eşleşme",
+    badge: "Smart Match",
+    desc: "Öğrencinin hedeflerine ve eksiklerine en uygun öğretmen, gelişmiş AI eşleştirme motorumuz tarafından saniyeler içinde belirlenir.",
   },
   {
-    icon: TrendingUp,
-    title: "Sürekli Takip",
-    desc: "Sadece ders değil, hedefe giden yolun düzenli takibi sağlanır.",
+    icon: LineChart,
+    title: "Dinamik Takip",
+    badge: "Auto-Update",
+    desc: "Öğrencinin gelişim seyri sürekli izlenir ve yapay zeka destekli haftalık çalışma planları otomatik olarak güncellenir.",
   },
 ];
 
@@ -56,16 +59,16 @@ const Landing = () => {
       <header className="sticky top-0 z-50 border-b border-gray-200 bg-[#0F172A]/95 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <div className="flex items-center gap-2.5">
-            <img src={logo} alt="Logo" width={36} height={36} />
+            <img src={logo} alt="Logo" width={36} height={36} className="rounded-full" />
             <div>
               <span className="block text-base font-bold text-white leading-tight">Özel Ders Rehberim</span>
-              <span className="block text-xs font-semibold leading-tight" style={{ color: GOLD }}>
-                Fatma Sağdıç Akademisi
+              <span className="flex items-center gap-1 text-xs font-semibold leading-tight" style={{ color: GOLD }}>
+                <Bot className="h-3 w-3" /> AI Destekli Eğitim Akademisi
               </span>
             </div>
           </div>
           <nav className="hidden items-center gap-6 md:flex">
-            <a href="#felsefe" className="text-sm text-gray-400 hover:text-white transition-colors">Felsefemiz</a>
+            <a href="#felsefe" className="text-sm text-gray-400 hover:text-white transition-colors">Yaklaşımımız</a>
             <a href="#nasil-calisir" className="text-sm text-gray-400 hover:text-white transition-colors">Nasıl Çalışır?</a>
             <a href="#dersler" className="text-sm text-gray-400 hover:text-white transition-colors">Dersler</a>
             <a href="#neden-biz" className="text-sm text-gray-400 hover:text-white transition-colors">Neden Biz?</a>
@@ -96,20 +99,19 @@ const Landing = () => {
           <div className="grid items-center gap-10 md:grid-cols-2">
             <div>
               <span
-                className="inline-block rounded-full px-3 py-1 text-xs font-semibold mb-4 border"
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold mb-4 border"
                 style={{ color: GOLD, borderColor: GOLD + "44", backgroundColor: GOLD + "15" }}
               >
-                🎓 Fatma Sağdıç Akademisi — Özel Ders Rehberim
+                <Sparkles className="h-3 w-3" /> Yapay Zeka Destekli Akıllı Eğitim Akademisi
               </span>
               <h1 className="text-4xl font-extrabold leading-tight text-white md:text-5xl">
-                Fatma Sağdıç Vizyonuyla:<br />
-                <span style={{ color: GOLD }}>Geleceğe Açılan</span><br />
-                Eğitim Rehberiniz
+                Yapay Zeka ile<br />
+                <span style={{ color: GOLD }}>Doğru Öğretmeni</span><br />
+                Bul, Hızlı Başar
               </h1>
-              {/* Gold underline */}
               <div className="mt-3 h-1 w-20 rounded-full" style={{ backgroundColor: GOLD }} />
               <p className="mt-5 text-lg text-gray-300 leading-relaxed">
-                Nitelikli öğretmen kadrosu ve bireysel başarı odaklı rehberlik sistemiyle tanışın.
+                AI destekli akıllı eşleştirme, kişiye özel çalışma planları ve eğitimde fırsat eşitliği vizyonuyla tanışın.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button
@@ -138,18 +140,18 @@ const Landing = () => {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <CheckCircle className="h-4 w-4 text-green-400" />
-                  Hızlı yanıt
+                  AI eşleştirme
                 </div>
                 <div className="flex items-center gap-1.5">
                   <CheckCircle className="h-4 w-4 text-green-400" />
-                  Esnek saatler
+                  Kişisel plan
                 </div>
               </div>
             </div>
             <div className="flex justify-center">
               <img
                 src={heroIllustration}
-                alt="Özel ders"
+                alt="AI Destekli Özel Ders"
                 className="w-full max-w-md drop-shadow-2xl"
               />
             </div>
@@ -157,16 +159,16 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* ── EĞİTİM FELSEFEMİZ ────────────────────────────────── */}
+      {/* ── YAPAY ZEKA BAŞARI İLKELERİ ───────────────────────── */}
       <section id="felsefe" className="px-6 py-20 bg-white">
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-12">
-            <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: GOLD }}>
-              Fatma Sağdıç Akademisi
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest" style={{ color: GOLD }}>
+              <Sparkles className="h-3.5 w-3.5" /> Özel Ders Rehberim
             </span>
-            <h2 className="mt-2 text-3xl font-bold text-gray-900">Eğitim Felsefemiz</h2>
+            <h2 className="mt-2 text-3xl font-bold text-gray-900">Yapay Zeka Destekli Başarı İlkelerimiz</h2>
             <div className="mt-3 mx-auto h-1 w-16 rounded-full" style={{ backgroundColor: GOLD }} />
-            <p className="mt-4 text-gray-500">Başarıyı mümkün kılan üç temel ilke</p>
+            <p className="mt-4 text-gray-500">Eğitimde fırsat eşitliğini mümkün kılan üç temel AI ilkesi</p>
           </div>
           <div className="grid gap-8 md:grid-cols-3">
             {philosophy.map((p) => (
@@ -175,15 +177,22 @@ const Landing = () => {
                 className="relative rounded-2xl border bg-white p-8 shadow-sm hover:shadow-md transition-shadow"
                 style={{ borderColor: GOLD + "33" }}
               >
-                {/* Gold top accent */}
                 <div className="absolute top-0 left-8 right-8 h-0.5 rounded-full" style={{ backgroundColor: GOLD }} />
-                <div
-                  className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl"
-                  style={{ backgroundColor: GOLD + "18" }}
-                >
-                  <p.icon className="h-6 w-6" style={{ color: GOLD }} />
+                <div className="mb-2 flex items-center justify-between">
+                  <div
+                    className="flex h-12 w-12 items-center justify-center rounded-xl"
+                    style={{ backgroundColor: GOLD + "18" }}
+                  >
+                    <p.icon className="h-6 w-6" style={{ color: GOLD }} />
+                  </div>
+                  <span
+                    className="rounded-full px-2 py-0.5 text-xs font-bold"
+                    style={{ backgroundColor: GOLD + "18", color: GOLD }}
+                  >
+                    {p.badge}
+                  </span>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900">{p.title}</h3>
+                <h3 className="mt-4 text-lg font-bold text-gray-900">{p.title}</h3>
                 <p className="mt-2 text-sm text-gray-500 leading-relaxed">{p.desc}</p>
               </div>
             ))}
@@ -196,7 +205,7 @@ const Landing = () => {
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-white">Nasıl Çalışır?</h2>
-            <p className="mt-2 text-gray-400">3 adımda özel derse başla</p>
+            <p className="mt-2 text-gray-400">3 adımda AI destekli eğitime başla</p>
           </div>
           <div className="grid gap-8 md:grid-cols-3">
             {steps.map((s) => (
@@ -231,7 +240,7 @@ const Landing = () => {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900">Hangi Dersler?</h2>
             <div className="mt-3 mx-auto h-1 w-16 rounded-full" style={{ backgroundColor: GOLD }} />
-            <p className="mt-4 text-gray-500">Her konu, her seviye, her sınav</p>
+            <p className="mt-4 text-gray-500">Her konu, her seviye — AI ile kişiselleştirilmiş</p>
           </div>
           <div className="flex flex-wrap justify-center gap-3">
             {subjects.map((s) => (
@@ -251,7 +260,7 @@ const Landing = () => {
               className="mt-2 text-sm font-semibold hover:underline"
               style={{ color: GOLD }}
             >
-              Başvurunda belirt, sana uygun öğretmen bulalım →
+              Başvurunda belirt, AI sistemimiz sana uygun öğretmen bulsun →
             </button>
           </div>
         </div>
@@ -261,9 +270,9 @@ const Landing = () => {
       <section id="neden-biz" className="px-6 py-20 bg-white">
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900">Neden Fatma Sağdıç Akademisi?</h2>
+            <h2 className="text-3xl font-bold text-gray-900">Neden Özel Ders Rehberim?</h2>
             <div className="mt-3 mx-auto h-1 w-16 rounded-full" style={{ backgroundColor: GOLD }} />
-            <p className="mt-4 text-gray-500">Fark yaratan özellikler</p>
+            <p className="mt-4 text-gray-500">Geleneksel değil, yapay zeka destekli</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
             {features.map((f) => (
@@ -296,7 +305,7 @@ const Landing = () => {
           </div>
           <h2 className="text-3xl font-bold text-white">Sen de Öğretmen misin?</h2>
           <p className="mt-3 text-gray-300 text-lg max-w-xl mx-auto">
-            Fatma Sağdıç Akademisi kadrosuna katıl, öğrencilere ulaş ve ek gelir kazan. Başvurun ücretsiz!
+            AI eşleştirme sistemimize katıl, sana uygun öğrencilere ulaş ve ek gelir kazan. Başvurun ücretsiz!
           </p>
           <button
             onClick={() => window.open(TEACHER_FORM, "_blank")}
@@ -309,8 +318,8 @@ const Landing = () => {
           </button>
           <div className="mt-6 flex justify-center gap-8 text-sm text-gray-400">
             <div className="flex items-center gap-1.5"><CheckCircle className="h-4 w-4 text-green-400" /> Ücretsiz üyelik</div>
+            <div className="flex items-center gap-1.5"><CheckCircle className="h-4 w-4 text-green-400" /> AI ile öğrenci eşleşme</div>
             <div className="flex items-center gap-1.5"><CheckCircle className="h-4 w-4 text-green-400" /> Esnek çalışma</div>
-            <div className="flex items-center gap-1.5"><CheckCircle className="h-4 w-4 text-green-400" /> Güvenli ödeme</div>
           </div>
         </div>
       </section>
@@ -342,13 +351,10 @@ const Landing = () => {
           </div>
 
           {/* Hızlı CTA */}
-          <div
-            className="mt-12 rounded-2xl px-8 py-10 text-center"
-            style={{ backgroundColor: "#0F172A" }}
-          >
+          <div className="mt-12 rounded-2xl px-8 py-10 text-center" style={{ backgroundColor: "#0F172A" }}>
             <Users className="mx-auto mb-3 h-10 w-10" style={{ color: GOLD }} />
             <h3 className="text-2xl font-bold text-white">Hemen Başvur</h3>
-            <p className="mt-2 text-gray-400">Ücretsiz başvurunu yap, ekibimiz seni arasın.</p>
+            <p className="mt-2 text-gray-400">AI sistemimiz profilini analiz etsin, sana en uygun öğretmeni bulsun.</p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row justify-center">
               <button
                 onClick={() => window.open(STUDENT_FORM, "_blank")}
@@ -375,15 +381,15 @@ const Landing = () => {
       <footer className="border-t border-white/10 bg-[#0F172A] px-6 py-10">
         <div className="mx-auto max-w-6xl flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-left">
           <div className="flex items-center gap-2">
-            <img src={logo} alt="Logo" width={28} height={28} />
+            <img src={logo} alt="Logo" width={28} height={28} className="rounded-full" />
             <div>
               <span className="block text-sm font-bold text-white leading-tight">Özel Ders Rehberim</span>
-              <span className="block text-xs font-semibold leading-tight" style={{ color: GOLD }}>
-                Fatma Sağdıç Akademisi
+              <span className="flex items-center gap-1 text-xs font-semibold leading-tight" style={{ color: GOLD }}>
+                <Bot className="h-3 w-3" /> AI Destekli Eğitim Akademisi
               </span>
             </div>
           </div>
-          <p className="text-xs text-gray-500">© 2026 Fatma Sağdıç — Özel Ders Rehberim. Tüm hakları saklıdır.</p>
+          <p className="text-xs text-gray-500">© 2026 Özel Ders Rehberim. Tüm hakları saklıdır.</p>
           <div className="flex gap-4 text-xs text-gray-500">
             <a href="#" className="hover:text-gray-300 transition-colors">Gizlilik</a>
             <a href="#" className="hover:text-gray-300 transition-colors">Şartlar</a>
