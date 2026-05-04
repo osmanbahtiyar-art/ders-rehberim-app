@@ -2,7 +2,7 @@ import logo from "@/assets/logo.png";
 import heroIllustration from "@/assets/hero-illustration.png";
 import {
   GraduationCap, BookOpen, CheckCircle, Star,
-  ArrowRight, Clock, Award, Users, Mail, MapPin,
+  ArrowRight, Clock, Award, Users,
   Brain, Zap, LineChart, Sparkles, Bot
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -324,58 +324,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* ── İLETİŞİM ──────────────────────────────────────────── */}
-      <section id="iletisim" className="px-6 py-20 bg-white">
-        <div className="mx-auto max-w-4xl">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-gray-900">İletişim</h2>
-            <div className="mt-3 mx-auto h-1 w-16 rounded-full" style={{ backgroundColor: GOLD }} />
-            <p className="mt-4 text-gray-500">Sorularınız için bize ulaşın</p>
-          </div>
-          <div className="grid gap-6 sm:grid-cols-2 max-w-2xl mx-auto">
-            {[
-              { icon: Mail, title: "E-posta", value: "fatma.sagdic38@gmail.com" },
-              { icon: MapPin, title: "Şehir", value: "Kayseri, Türkiye" },
-            ].map((c) => (
-              <div key={c.title} className="rounded-2xl border border-gray-100 bg-gray-50 p-6 text-center hover:shadow-md transition-shadow">
-                <div
-                  className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl"
-                  style={{ backgroundColor: GOLD + "18" }}
-                >
-                  <c.icon className="h-5 w-5" style={{ color: GOLD }} />
-                </div>
-                <p className="font-semibold text-gray-900">{c.title}</p>
-                <p className="mt-1 text-sm text-gray-500">{c.value}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Hızlı CTA */}
-          <div className="mt-12 rounded-2xl px-8 py-10 text-center" style={{ backgroundColor: "#0F172A" }}>
-            <Users className="mx-auto mb-3 h-10 w-10" style={{ color: GOLD }} />
-            <h3 className="text-2xl font-bold text-white">Hemen Başvur</h3>
-            <p className="mt-2 text-gray-400">AI sistemimiz profilini analiz etsin, sana en uygun öğretmeni bulsun.</p>
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row justify-center">
-              <button
-                onClick={() => window.open(STUDENT_FORM, "_blank")}
-                className="flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-base font-bold shadow-lg hover:opacity-90 transition-opacity"
-                style={{ backgroundColor: GOLD, color: "#0F172A" }}
-              >
-                <GraduationCap className="h-5 w-5" />
-                Öğrenci Başvurusu
-              </button>
-              <button
-                onClick={() => window.open(TEACHER_FORM, "_blank")}
-                className="flex items-center justify-center gap-2 rounded-xl border px-6 py-3 text-base font-semibold text-white hover:bg-white/10 transition-colors"
-                style={{ borderColor: GOLD + "66" }}
-              >
-                <BookOpen className="h-5 w-5" />
-                Öğretmen Başvurusu
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ── FOOTER ────────────────────────────────────────────── */}
       <footer className="border-t border-white/10 bg-[#0F172A] px-6 py-10">
